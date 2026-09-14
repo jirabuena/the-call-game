@@ -1,0 +1,52 @@
+{
+  "start": {
+    "id": "start",
+    "speakerId": "jesus",
+    "text": "Put out into deep water, and let down the nets for a catch.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "Master, we've worked hard all night and haven't caught anything.",
+        "nextNodeId": "simon_doubt"
+      }
+    ]
+  },
+  "simon_doubt": {
+    "id": "simon_doubt",
+    "speakerId": "peter",
+    "text": "But because you say so, I will let down the nets.",
+    "avatar": "0x4a90e2",
+    "choices": [
+      {
+        "text": "[Lower the nets]",
+        "nextNodeId": "miracle",
+        "actionTrigger": "catch_fish"
+      }
+    ]
+  },
+  "miracle": {
+    "id": "miracle",
+    "speakerId": "peter",
+    "text": "Go away from me, Lord; I am a sinful man!",
+    "avatar": "0x4a90e2",
+    "choices": [
+      {
+        "text": "...",
+        "nextNodeId": "calling"
+      }
+    ]
+  },
+  "calling": {
+    "id": "calling",
+    "speakerId": "jesus",
+    "text": "Don't be afraid; from now on you will fish for people.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "[Follow Him]",
+        "nextNodeId": "end",
+        "actionTrigger": "join_jesus"
+      }
+    ]
+  }
+}

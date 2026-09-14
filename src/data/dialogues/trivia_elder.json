@@ -1,0 +1,35 @@
+{
+    "trivia_start": {
+      "id": "trivia_start",
+      "speakerId": "elder",
+      "text": "¿Sabes por qué los pescadores de Galilea trabajan de noche?",
+      "avatar": "0x884400",
+      "choices": [
+        {
+          "text": "Para evitar los impuestos romanos durante el día.",
+          "nextNodeId": "trivia_wrong"
+        },
+        {
+          "text": "Porque las redes de lino se ven menos y los peces suben a la superficie.",
+          "nextNodeId": "trivia_correct",
+          "actionTrigger": "trivia_correct"
+        },
+        {
+          "text": "Porque el Maestro se los ordenó así.",
+          "nextNodeId": "trivia_wrong"
+        }
+      ]
+    },
+    "trivia_wrong": {
+      "id": "trivia_wrong",
+      "speakerId": "elder",
+      "text": "No, hijo mío. Piénsalo bien...",
+      "avatar": "0x884400"
+    },
+    "trivia_correct": {
+      "id": "trivia_correct",
+      "speakerId": "elder",
+      "text": "¡Exacto! Tienes buen entendimiento. Toma este pergamino.",
+      "avatar": "0x884400"
+    }
+  }
