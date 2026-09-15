@@ -174,7 +174,7 @@ export class JerusalemGatesScene extends Phaser.Scene {
         }
 
         // Edge transitions (left side goes to Capernaum, just for example connectivity)
-        if (this.player.x <= 10) {
+        if (this.player.x <= 15) {
             this.scene.start('CapernaumScene');
         }
     }

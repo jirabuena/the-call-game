@@ -27,6 +27,8 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     private activeTree: DialogueTree | null = null;
     
     private isDialogueActive: boolean = false;
+    private hasToldToFish: boolean = false;
+    private hasCaughtFish: boolean = false;
 
     constructor() {
         super('SeaOfGalileeScene');
@@ -127,13 +129,32 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         const distToNet = Phaser.Math.Distance.Between(pX, pY, this.emptyNet.x, this.emptyNet.y);
         if (distToNet < 30) {
             this.isDialogueActive = true;
-            this.dialogueManager.showNode({
-                id: 'net_interaction',
-                speakerId: 'peter',
-                text: "Empty again. We've fished all night and caught nothing...",
-                avatar: '0x4a90e2',
-                choices: [{ text: "[Leave it]", nextNodeId: 'end' }]
-            });
+            
+            if (this.hasToldToFish && !this.hasCaughtFish) {
+                this.dialogueManager.showNode({
+                    id: 'net_interaction',
+                    speakerId: 'peter',
+                    text: "¡La red está a punto de romperse de tantos peces! ¡Es un milagro!",
+                    avatar: '0x4a90e2',
+                    choices: [{ text: "[Recoger los peces]", nextNodeId: 'end', actionTrigger: 'catch_fish' }]
+                });
+            } else if (this.hasCaughtFish) {
+                this.dialogueManager.showNode({
+                    id: 'net_interaction',
+                    speakerId: 'peter',
+                    text: "La pesca más grande de mi vida. Pero ya no importa...",
+                    avatar: '0x4a90e2',
+                    choices: [{ text: "[Dejarla atrás]", nextNodeId: 'end' }]
+                });
+            } else {
+                this.dialogueManager.showNode({
+                    id: 'net_interaction',
+                    speakerId: 'peter',
+                    text: "Vacía de nuevo. Hemos pescado toda la noche y no hemos sacado nada...",
+                    avatar: '0x4a90e2',
+                    choices: [{ text: "[Dejarla]", nextNodeId: 'end' }]
+                });
+            }
             return;
         }
 
@@ -142,7 +163,12 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         if (distToJesus < 40) {
             this.isDialogueActive = true;
             this.activeTree = this.callingPeterTree;
-            this.dialogueManager.showNode(this.activeTree['start']);
+            
+            if (this.hasCaughtFish) {
+                this.dialogueManager.showNode(this.activeTree['after_miracle']);
+            } else {
+                this.dialogueManager.showNode(this.activeTree['start']);
+            }
             return;
         }
 
@@ -157,10 +183,24 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     }
 
     private handleNarrativeAction(action: string) {
-        if (action === 'catch_fish') {
+        if (action === 'told_to_fish') {
+            this.hasToldToFish = true;
+        } else if (action === 'catch_fish') {
+            this.hasCaughtFish = true;
             // Visual feedback for miraculous catch
-            this.emptyNet.setFillStyle(0x00ff00); // Change net color to indicate it's full
-            // Could add small fish sprites here
+            this.emptyNet.setFillStyle(0x3a7ca5); // Change net color to indicate it's full of water/fish
+            
+            // Add some fish sprites bouncing around the net
+            for(let i=0; i<3; i++) {
+                const fish = this.add.rectangle(this.emptyNet.x + (Math.random() * 10 - 5), this.emptyNet.y + (Math.random() * 10 - 5), 4, 2, 0xaaaaaa);
+                this.tweens.add({
+                    targets: fish,
+                    y: fish.y - 10,
+                    yoyo: true,
+                    repeat: -1,
+                    duration: 300 + Math.random() * 200
+                });
+            }
         } else if (action === 'join_jesus') {
             if (!state.unlockedDisciples.includes('peter')) {
                 state.unlockedDisciples.push('peter');
@@ -226,7 +266,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         }
 
         // Edge transition (Right side goes to Capernaum)
-        if (this.player.x >= 379) {
+        if (this.player.x >= 365) {
             this.scene.start('CapernaumScene');
         }
     }

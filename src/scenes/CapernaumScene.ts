@@ -183,9 +183,9 @@ export class CapernaumScene extends Phaser.Scene {
         }
 
         // Edge transitions
-        if (this.player.x <= 5) {
+        if (this.player.x <= 15) {
             this.scene.start('SeaOfGalileeScene');
-        } else if (this.player.x >= 379) {
+        } else if (this.player.x >= 365) {
             this.scene.start('JerusalemGatesScene');
         }
     }

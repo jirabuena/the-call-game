@@ -2,48 +2,24 @@
   "start": {
     "id": "start",
     "speakerId": "jesus",
-    "text": "Put out into deep water, and let down the nets for a catch.",
+    "text": "Boga mar adentro, y echad vuestras redes para pescar.",
     "avatar": "0xffffff",
     "choices": [
       {
-        "text": "Master, we've worked hard all night and haven't caught anything.",
-        "nextNodeId": "simon_doubt"
+        "text": "Maestro, toda la noche hemos estado trabajando, y nada hemos pescado; mas en tu palabra echaré la red.",
+        "nextNodeId": "end",
+        "actionTrigger": "told_to_fish"
       }
     ]
   },
-  "simon_doubt": {
-    "id": "simon_doubt",
-    "speakerId": "peter",
-    "text": "But because you say so, I will let down the nets.",
-    "avatar": "0x4a90e2",
-    "choices": [
-      {
-        "text": "[Lower the nets]",
-        "nextNodeId": "miracle",
-        "actionTrigger": "catch_fish"
-      }
-    ]
-  },
-  "miracle": {
-    "id": "miracle",
-    "speakerId": "peter",
-    "text": "Go away from me, Lord; I am a sinful man!",
-    "avatar": "0x4a90e2",
-    "choices": [
-      {
-        "text": "...",
-        "nextNodeId": "calling"
-      }
-    ]
-  },
-  "calling": {
-    "id": "calling",
+  "after_miracle": {
+    "id": "after_miracle",
     "speakerId": "jesus",
-    "text": "Don't be afraid; from now on you will fish for people.",
+    "text": "No temas; desde ahora serás pescador de hombres. Sígueme.",
     "avatar": "0xffffff",
     "choices": [
       {
-        "text": "[Follow Him]",
+        "text": "[Dejar las redes y seguirlo]",
         "nextNodeId": "end",
         "actionTrigger": "join_jesus"
       }
