@@ -48,18 +48,18 @@ export class JordanRiverScene extends Phaser.Scene {
         // --- Characters ---
         // Player (Andrew - green cloak placeholder)
         this.player = this.physics.add.sprite(100, height * 0.7, 'tex_sand');
-        this.player.setTint(0x4CAF50); 
+        // this.player.setTint(0x4CAF50); 
         this.player.setCollideWorldBounds(true);
         this.player.body?.setSize(16, 16);
 
         // John the Baptist (camel hair/brown)
         this.johnBaptist = this.physics.add.sprite(width / 2, height * 0.5, 'tex_sand');
-        this.johnBaptist.setTint(0x8B4513);
+        // this.johnBaptist.setTint(0x8B4513);
         this.johnBaptist.setImmovable(true);
 
         // Jesus (far away, white)
         this.jesus = this.physics.add.sprite(width * 0.8, height * 0.45, 'tex_sand');
-        this.jesus.setTint(0xFFFFFF);
+        // this.jesus.setTint(0xFFFFFF);
         this.jesus.setImmovable(true);
 
         // Peter (blue cloak, waiting at the edge)

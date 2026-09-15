@@ -176,6 +176,11 @@ export class BootScene extends Phaser.Scene {
 
         // Pilgrim Texture (Brown tunic, simple hood/hair)
         drawChar(0x8B7355, 0xd0a070, 0x553311, true);
+        g.generateTexture("tex_andrew", 16, 24);
+        drawChar(0x8B4513, 0xd0a070, 0x333333, true);
+        g.generateTexture("tex_john_baptist", 16, 24);
+        drawChar(0x800080, 0xffdcb1, 0x999999, true);
+        g.generateTexture("tex_scribe", 16, 24);
         g.generateTexture('tex_pilgrim', 16, 24);
         g.clear();
     }
