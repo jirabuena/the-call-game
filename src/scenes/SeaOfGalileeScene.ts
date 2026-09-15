@@ -5,6 +5,7 @@ import { JournalManager } from '../systems/JournalManager';
 import callingPeterData from '../data/dialogues/calling_peter.json';
 import triviaElderData from '../data/dialogues/trivia_elder.json';
 import { state } from '../state/GameState';
+import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
 
 export class SeaOfGalileeScene extends Phaser.Scene {
     private player!: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
@@ -19,6 +20,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     
     private dialogueManager!: DialogueManager;
     private journalManager!: JournalManager;
+    private _discipleSelectUI!: DiscipleSelectUI;
     
     private callingPeterTree: DialogueTree = callingPeterData;
     private triviaElderTree: DialogueTree = triviaElderData;
@@ -85,6 +87,16 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         // Initialize Managers
         this.dialogueManager = new DialogueManager(this);
         this.journalManager = new JournalManager(this);
+        this._discipleSelectUI = new DiscipleSelectUI(this);
+
+        // Character switch listener
+        this.events.on('character-changed', (_charId: string, color: number) => {
+            this.player.setFillStyle(color);
+        });
+
+        // Set initial color based on active character
+        const charColor = state.activeCharacter === 'matthew' ? 0x550000 : 0x4a90e2;
+        this.player.setFillStyle(charColor);
 
         this.dialogueManager.setOnChoiceSelect((nextNodeId, actionTrigger) => {
             if (actionTrigger) {
@@ -194,5 +206,10 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         }
 
         this.player.body.setVelocity(velocityX, velocityY);
+
+        // Edge transition (Right side goes to Capernaum)
+        if (this.player.x >= 379) {
+            this.scene.start('CapernaumScene');
+        }
     }
 }

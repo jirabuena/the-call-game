@@ -13,13 +13,15 @@ export class JournalManager {
     private passageDatabase: Record<string, string> = {
         'luke_5': 'Lucas 5:1-11 - La pesca milagrosa y el llamado de Simón Pedro.',
         'matt_4': 'Mateo 4:18-22 - El llamado a ser pescadores de hombres.',
-        'matt_9': 'Mateo 9:9-13 - El llamado de Mateo y la comida con pecadores.'
+        'matt_9': 'Mateo 9:9-13 - El llamado de Mateo y la comida con pecadores.',
+        'psalm_122': 'Salmo 122:1 - "Yo me alegré con los que me decían: A la casa de Jehová iremos." Cántico de los peregrinos.'
     };
 
     private contextDatabase: Record<string, string> = {
         'galilee_fishing': 'Contexto: Galilea era el centro de la industria pesquera. El pescado salado se exportaba por todo el Imperio Romano.',
         'roman_occupation': 'Contexto: Roma imponía altos impuestos a los pescadores de Galilea.',
-        'publicans': 'Los publicanos recaudaban impuestos para Roma. Eran odiados y considerados traidores y pecadores por sus compatriotas.'
+        'publicans': 'Los publicanos recaudaban impuestos para Roma. Eran odiados y considerados traidores y pecadores por sus compatriotas.',
+        'roman_taxes': 'Contexto: Los romanos y gobernantes locales (tetrarcas) cobraban peajes e impuestos en las entradas de las ciudades, frecuentemente abusivos.'
     };
 
     constructor(scene: Phaser.Scene) {

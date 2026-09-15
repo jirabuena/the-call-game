@@ -2,59 +2,64 @@ import * as Phaser from 'phaser';
 import { DialogueManager } from '../systems/DialogueManager';
 import type { DialogueTree } from '../systems/DialogueManager';
 import { JournalManager } from '../systems/JournalManager';
-import callingMatthewData from '../data/dialogues/calling_matthew.json';
-import { state, gameStateManager } from '../state/GameState';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
+import { state, gameStateManager } from '../state/GameState';
+import jerusalemGatesData from '../data/dialogues/jerusalem_gates.json';
 
-export class CapernaumScene extends Phaser.Scene {
+export class JerusalemGatesScene extends Phaser.Scene {
     private player!: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
     private dialogueManager!: DialogueManager;
     private journalManager!: JournalManager;
     private _discipleSelectUI!: DiscipleSelectUI;
     
-    private callingMatthewTree: DialogueTree = callingMatthewData;
+    private dialogueTree: DialogueTree = jerusalemGatesData;
     private isDialogueActive: boolean = false;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasdKeys!: any;
     private playerSpeed: number = 100;
     
-    public taxTable!: Phaser.GameObjects.Rectangle;
-    public jesusNPC!: Phaser.GameObjects.Rectangle;
+    public guardNPC!: Phaser.GameObjects.Rectangle;
+    public pilgrimNPC!: Phaser.GameObjects.Rectangle;
     
     constructor() {
-        super('CapernaumScene');
+        super('JerusalemGatesScene');
     }
 
     create() {
         const width = 384;
         const height = 216;
 
-        // Street background
-        this.add.rectangle(width / 2, height / 2, width, height, 0xC2B280);
+        // Dusty path leading to the gates
+        this.add.rectangle(width / 2, height / 2, width, height, 0xD2B48C);
 
-        // Limestone buildings
-        this.add.rectangle(width / 4, height / 4, 120, 80, 0xEAE0C8); // House 1
-        this.add.rectangle(width * 3 / 4, height / 4, 140, 90, 0xD4C5A9); // House 2
+        // Massive stone walls of Jerusalem
+        this.add.rectangle(width / 2, 40, width, 80, 0x8B8989);
+        this.add.rectangle(width / 2, 80, width, 10, 0x555555); // Wall detail
+        
+        // City Gate
+        this.add.rectangle(width / 2, 70, 60, 60, 0x3d2314);
 
-        // Market stall
-        this.add.rectangle(width * 3 / 4, height / 2 + 10, 60, 30, 0x8C6239);
-        this.add.rectangle(width * 3 / 4, height / 2 - 10, 60, 10, 0xAA3333); // Awning
+        // Roman Guard
+        this.guardNPC = this.add.rectangle(width / 2 - 40, 90, 16, 24, 0xff0000);
 
-        // Tax booth (Customs office)
-        this.add.rectangle(width / 4, height / 2 + 20, 50, 40, 0x555555); // Floor/Mat
-        this.taxTable = this.add.rectangle(width / 4, height / 2 + 30, 40, 15, 0x5C4033);
-
-        // Jesus NPC
-        this.jesusNPC = this.add.rectangle(width / 2, height * 3 / 4, 16, 24, 0xffffff);
+        // Pilgrim
+        this.pilgrimNPC = this.add.rectangle(width / 2 + 50, 120, 16, 24, 0x886644);
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
-        // Player (Matthew) starting near the tax table
-        const rect = this.add.rectangle(width / 4, height / 2 + 15, 16, 24, 0x550000);
+        // Player (Starts near the bottom, coming from Galilee/Judea)
+        const rect = this.add.rectangle(width / 2, height - 30, 16, 24, 0xffffff);
         this.physics.add.existing(rect);
         this.player = rect as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
+
+        // Character switch listener and initial color
+        this.events.on('character-changed', (_charId: string, color: number) => {
+            this.player.setFillStyle(color);
+        });
+        const charColor = state.activeCharacter === 'matthew' ? 0x550000 : 0x4a90e2;
+        this.player.setFillStyle(charColor);
 
         // Keyboard input
         if (this.input.keyboard) {
@@ -70,21 +75,21 @@ export class CapernaumScene extends Phaser.Scene {
         this.journalManager = new JournalManager(this);
         this._discipleSelectUI = new DiscipleSelectUI(this);
 
-        // Character switch listener
-        this.events.on('character-changed', (_charId: string, color: number) => {
-            this.player.setFillStyle(color);
-        });
-
-        // Set initial color based on active character
-        const charColor = state.activeCharacter === 'matthew' ? 0x550000 : 0x4a90e2;
-        this.player.setFillStyle(charColor);
-
         this.dialogueManager.setOnChoiceSelect((nextNodeId, actionTrigger) => {
             if (actionTrigger) {
                 this.handleNarrativeAction(actionTrigger);
             }
-            if (this.callingMatthewTree[nextNodeId]) {
-                this.dialogueManager.showNode(this.callingMatthewTree[nextNodeId]);
+            
+            // Branching based on active character traits
+            if (nextNodeId === 'check_reading') {
+                nextNodeId = state.activeCharacter === 'matthew' ? 'success_reading' : 'check_reading';
+            }
+            if (nextNodeId === 'check_humble') {
+                nextNodeId = state.activeCharacter === 'peter' ? 'success_humble' : 'check_humble';
+            }
+
+            if (this.dialogueTree[nextNodeId]) {
+                this.dialogueManager.showNode(this.dialogueTree[nextNodeId]);
             } else {
                 this.dialogueManager.hide();
                 this.isDialogueActive = false;
@@ -98,40 +103,33 @@ export class CapernaumScene extends Phaser.Scene {
         const pX = this.player.x;
         const pY = this.player.y;
 
-        // Check distance to Jesus
-        const distToJesus = Phaser.Math.Distance.Between(pX, pY, this.jesusNPC.x, this.jesusNPC.y);
-        if (distToJesus < 40) {
+        // Check distance to Guard
+        if (Phaser.Math.Distance.Between(pX, pY, this.guardNPC.x, this.guardNPC.y) < 40) {
             this.isDialogueActive = true;
-            this.dialogueManager.showNode(this.callingMatthewTree['jesus_arrives']);
+            this.dialogueManager.showNode(this.dialogueTree['start_guard']);
             return;
         }
 
-        // Check distance to Tax Table
-        const distToTable = Phaser.Math.Distance.Between(pX, pY, this.taxTable.x, this.taxTable.y);
-        if (distToTable < 30) {
+        // Check distance to Pilgrim
+        if (Phaser.Math.Distance.Between(pX, pY, this.pilgrimNPC.x, this.pilgrimNPC.y) < 40) {
             this.isDialogueActive = true;
-            this.dialogueManager.showNode(this.callingMatthewTree['start']);
+            this.dialogueManager.showNode(this.dialogueTree['start_pilgrim']);
             return;
         }
     }
 
     private handleNarrativeAction(action: string) {
-        if (action === 'join_jesus_matthew') {
-            if (!state.unlockedDisciples.includes('matthew')) {
-                state.unlockedDisciples.push('matthew');
-                
-                // Unlock passage and context
-                if (!state.unlockedPassages.includes('matt_9')) {
-                    state.unlockedPassages.push('matt_9');
-                }
-                if (!state.unlockedContexts.includes('publicans')) {
-                    state.unlockedContexts.push('publicans');
-                }
-                
-                // Visual feedback: change player color to indicate leaving the old life
-                // this.player.setFillStyle(0x4a90e2); // Will be handled by avatar swap logic
-                
+        if (action === 'read_edict') {
+            if (!state.unlockedContexts.includes('roman_taxes')) {
+                state.unlockedContexts.push('roman_taxes');
                 gameStateManager.save();
+                console.log('Unlocked context: roman_taxes');
+            }
+        } else if (action === 'comfort_pilgrim') {
+            if (!state.unlockedPassages.includes('psalm_122')) {
+                state.unlockedPassages.push('psalm_122');
+                gameStateManager.save();
+                console.log('Unlocked passage: psalm_122');
             }
         }
     }
@@ -164,12 +162,10 @@ export class CapernaumScene extends Phaser.Scene {
         }
 
         this.player.body.setVelocity(velocityX, velocityY);
-
-        // Edge transitions
-        if (this.player.x <= 5) {
-            this.scene.start('SeaOfGalileeScene');
-        } else if (this.player.x >= 379) {
-            this.scene.start('JerusalemGatesScene');
+        
+        // Edge transitions (left side goes to Capernaum, just for example connectivity)
+        if (this.player.x <= 10) {
+            this.scene.start('CapernaumScene');
         }
     }
 }
