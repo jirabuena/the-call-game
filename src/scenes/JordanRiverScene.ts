@@ -39,32 +39,32 @@ export class JordanRiverScene extends Phaser.Scene {
 
         // Background: 40% water (top), 60% land (bottom)
         const waterHeight = height * 0.4;
-        this.add.rectangle(0, 0, width, waterHeight, 0x1C3852).setOrigin(0);
-        this.add.rectangle(0, waterHeight, width, height - waterHeight, 0x8B7355).setOrigin(0);
+        this.add.tileSprite(0, 0, width, waterHeight, "tex_water").setOrigin(0);
+        this.add.tileSprite(0, waterHeight, width, height - waterHeight, "tex_sand").setOrigin(0);
 
         // Water reflection lines
         this.add.rectangle(0, waterHeight, width, 4, 0x285073).setOrigin(0);
         
         // --- Characters ---
         // Player (Andrew - green cloak placeholder)
-        this.player = this.physics.add.sprite(100, height * 0.7, 'tex_sand');
-        // this.player.setTint(0x4CAF50); 
+        this.player = this.physics.add.sprite(100, height * 0.7, 'tex_andrew');
+          
         this.player.setCollideWorldBounds(true);
         this.player.body?.setSize(16, 16);
 
         // John the Baptist (camel hair/brown)
-        this.johnBaptist = this.physics.add.sprite(width / 2, height * 0.5, 'tex_sand');
-        // this.johnBaptist.setTint(0x8B4513);
+        this.johnBaptist = this.physics.add.sprite(width / 2, height * 0.5, 'tex_john_baptist');
+         
         this.johnBaptist.setImmovable(true);
 
         // Jesus (far away, white)
-        this.jesus = this.physics.add.sprite(width * 0.8, height * 0.45, 'tex_sand');
-        // this.jesus.setTint(0xFFFFFF);
+        this.jesus = this.physics.add.sprite(width * 0.8, height * 0.45, 'tex_jesus');
+         
         this.jesus.setImmovable(true);
 
         // Peter (blue cloak, waiting at the edge)
-        this.peterNPC = this.physics.add.sprite(width - 40, height * 0.8, 'tex_sand');
-        this.peterNPC.setTint(0x4a90e2);
+        this.peterNPC = this.physics.add.sprite(width - 40, height * 0.8, 'tex_peter');
+         
         this.peterNPC.setImmovable(true);
         this.peterNPC.setVisible(false); // Only visible later
 
@@ -148,7 +148,8 @@ export class JordanRiverScene extends Phaser.Scene {
                 this.chapterState = 3;
                 this.lessonHUD.advanceProgress();
                 if (!state.unlockedDisciples.includes('peter')) {
-                    state.unlockedDisciples.push('peter');
+                    state.unlockedDisciples.push("peter");
+                    this.scene.start("SeaOfGalileeScene");
                     gameStateManager.save();
                 }
             }}]
