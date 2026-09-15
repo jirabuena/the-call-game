@@ -33,7 +33,7 @@ export class DialogueManager {
 
         // Configuration
         this.boxWidth = scene.cameras.main.width - 20;
-        this.boxHeight = 110; // Increased height to fit long multiline choices
+        this.boxHeight = 60; // Initial default height, will be updated dynamically
         const x = 10;
         const y = scene.cameras.main.height - this.boxHeight - 10;
 
@@ -41,36 +41,22 @@ export class DialogueManager {
         this.container.setScrollFactor(0); // Make it stick to camera
         this.container.setDepth(100);
 
-        // Drop shadow
-        const shadow = this.scene.add.graphics();
-        shadow.fillStyle(0x000000, 0.5);
-        shadow.fillRect(2, 2, this.boxWidth, this.boxHeight);
-        this.container.add(shadow);
-
-        // Background with retro border
+        // Background with retro border (Will be redrawn dynamically)
         this.background = this.scene.add.graphics();
-        this.background.fillStyle(0x222222, 0.95);
-        this.background.fillRect(0, 0, this.boxWidth, this.boxHeight);
-        this.background.lineStyle(2, 0xd4c5a9, 1); // Gold-ish border
-        this.background.strokeRect(0, 0, this.boxWidth, this.boxHeight);
-        
-        // Inner border for extra retro feel
-        this.background.lineStyle(1, 0x555555, 1);
-        this.background.strokeRect(4, 4, this.boxWidth - 8, this.boxHeight - 8);
         this.container.add(this.background);
 
         // Portrait placeholder
-        this.portrait = this.scene.add.rectangle(24, 47, 32, 32, 0xaaaaaa);
-        this.portrait.setStrokeStyle(1, 0xffffff); // Add a small border to the portrait
+        this.portrait = this.scene.add.rectangle(24, 0, 32, 32, 0xaaaaaa); // Y will be set dynamically
+        this.portrait.setStrokeStyle(1, 0xffffff);
         this.container.add(this.portrait);
 
         // Main text
         this.dialogueText = this.scene.add.text(48, 10, '', {
             fontFamily: 'monospace',
             fontSize: '10px',
-            color: '#eae0c8', // Slightly off-white/parchment color
+            color: '#eae0c8',
             lineSpacing: 2,
-            wordWrap: { width: this.boxWidth - 56, useAdvancedWrap: true }
+            wordWrap: { width: this.boxWidth - 60, useAdvancedWrap: true }
         });
         this.container.add(this.dialogueText);
 
@@ -128,10 +114,37 @@ export class DialogueManager {
         // Hide choices initially
         this.choicesText.forEach(ct => ct.setVisible(false));
         
+        // Temporarily set the full text to calculate height
+        this.dialogueText.setText(node.text);
+        let contentHeight = 10 + this.dialogueText.height + 10; // Padding top/bottom
+        
+        // Calculate space for choices if any
+        if (node.choices && node.choices.length > 0) {
+            contentHeight += 4; // Extra padding before choices
+            for (let i = 0; i < Math.min(3, node.choices.length); i++) {
+                const ct = this.choicesText[i];
+                ct.setText(`> ${node.choices[i].text}`);
+                contentHeight += ct.height + 4; // Spacing between choices
+            }
+        }
+
+        // Enforce a minimum height for aesthetics
+        this.boxHeight = Math.max(60, contentHeight);
+
+        // Redraw container background based on new height
+        this.redrawBackground();
+
+        // Reposition container so it anchors from the bottom up
+        this.container.setY(this.scene.cameras.main.height - this.boxHeight - 10);
+        
+        // Center the portrait vertically in the new box height
+        this.portrait.setY(this.boxHeight / 2);
+
+        // Start typing effect
         this.dialogueText.setText('');
         this.currentTextIndex = 0;
 
-        // Parse portrait color if provided as hex string, or use default
+        // Parse portrait color
         if (node.avatar && node.avatar.startsWith('0x')) {
             this.portrait.setFillStyle(parseInt(node.avatar, 16));
         } else {
@@ -148,6 +161,24 @@ export class DialogueManager {
             callbackScope: this,
             loop: true
         });
+    }
+
+    private redrawBackground() {
+        this.background.clear();
+        
+        // Drop shadow
+        this.background.fillStyle(0x000000, 0.5);
+        this.background.fillRect(2, 2, this.boxWidth, this.boxHeight);
+
+        // Background with retro border
+        this.background.fillStyle(0x222222, 0.95);
+        this.background.fillRect(0, 0, this.boxWidth, this.boxHeight);
+        this.background.lineStyle(2, 0xd4c5a9, 1);
+        this.background.strokeRect(0, 0, this.boxWidth, this.boxHeight);
+        
+        // Inner border
+        this.background.lineStyle(1, 0x555555, 1);
+        this.background.strokeRect(4, 4, this.boxWidth - 8, this.boxHeight - 8);
     }
 
     private typeChar() {
@@ -176,26 +207,15 @@ export class DialogueManager {
         if (this.currentNode.choices && this.currentNode.choices.length > 0) {
             this.selectedChoiceIndex = 0;
             
-            // Calculate dynamic Y position based on dialogue text height
-            // We add some padding below the main text
-            const textHeight = this.dialogueText.height;
-            let currentY = 10 + textHeight + 6;
+            let currentY = 10 + this.dialogueText.height + 6;
 
             for (let i = 0; i < Math.min(3, this.currentNode.choices.length); i++) {
                 const choice = this.currentNode.choices[i];
                 const ct = this.choicesText[i];
                 ct.setText(`> ${choice.text}`);
-                
-                // If it goes out of bounds, push it up (simple clamp)
-                if (currentY + ct.height > this.boxHeight - 4) {
-                     currentY = this.boxHeight - ct.height - 4;
-                }
-                
                 ct.setY(currentY);
                 ct.setVisible(true);
-                
-                // Add the actual rendered height of this choice text for the next item's position
-                currentY += ct.height + 2; 
+                currentY += ct.height + 4; 
             }
             this.updateChoiceSelection();
         }
