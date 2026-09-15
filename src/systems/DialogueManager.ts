@@ -2,8 +2,9 @@ import * as Phaser from 'phaser';
 
 export interface DialogueChoice {
     text: string;
-    nextNodeId: string;
+    nextNodeId: string | null;
     actionTrigger?: string;
+    callback?: () => void;
 }
 
 export interface DialogueNode {
@@ -27,6 +28,7 @@ export class DialogueManager {
     private isVisible: boolean = false;
     private boxWidth: number;
     private boxHeight: number;
+    private dialogueNodes: DialogueTree = {};
     
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
@@ -95,6 +97,26 @@ export class DialogueManager {
 
     public setOnChoiceSelect(callback: (nextNodeId: string, actionTrigger?: string) => void) {
         this.onChoiceSelect = callback;
+    }
+
+    public addNode(id: string, nodeDef: Partial<DialogueNode>) {
+        this.dialogueNodes[id] = {
+            id,
+            speakerId: nodeDef.speakerId || 'system',
+            text: nodeDef.text || '',
+            avatar: nodeDef.avatar || '0xaaaaaa',
+            choices: nodeDef.choices || []
+        };
+    }
+
+    public start(nodeId: string) {
+        if (this.dialogueNodes[nodeId]) {
+            this.showNode(this.dialogueNodes[nodeId]);
+        }
+    }
+
+    public isActive(): boolean {
+        return this.isVisible;
     }
 
     public hide() {
@@ -229,16 +251,27 @@ export class DialogueManager {
         } else if (this.currentNode && this.currentNode.choices && this.currentNode.choices.length > 0) {
             // Select choice
             const selectedChoice = this.currentNode.choices[this.selectedChoiceIndex];
-            if (selectedChoice && this.onChoiceSelect) {
+            
+            // Allow calling an inline callback if provided in the DialogueChoice directly
+            if (selectedChoice.callback) {
+                selectedChoice.callback();
+            }
+            
+            if (selectedChoice.nextNodeId) {
+                 this.start(selectedChoice.nextNodeId);
+            } else if (!selectedChoice.callback) {
+                // If it's null and there's no callback, just hide (end conversation)
+                this.hide();
+            } else {
+                // Also hide if there is a callback but nextNodeId is explicitly null
+                 this.hide();
+            }
+
+            if (selectedChoice && this.onChoiceSelect && selectedChoice.nextNodeId) {
                 this.onChoiceSelect(selectedChoice.nextNodeId, selectedChoice.actionTrigger);
             }
         } else {
-            // If there are no choices (like "end" node), space should just hide the dialogue
-            // Or if we need to dispatch a generic "continue" action we could do it here
-            // But since nodes without choices are dead-ends in our JSON, hide is correct
-            
-            // Check if there was an actionTrigger on this terminal node
-            // Wait, action triggers are on choices, not on the node itself in our interface.
+            // If there are no choices, close dialogue
             this.hide();
         }
     }

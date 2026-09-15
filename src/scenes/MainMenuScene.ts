@@ -62,7 +62,7 @@ export class MainMenuScene extends Phaser.Scene {
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
         this.startText.on('pointerdown', () => {
-            this.scene.start('SeaOfGalileeScene');
+            this.scene.start('JordanRiverScene');
         });
         
         this.startText.on('pointerover', () => this.startText.setBackgroundColor('#666666'));

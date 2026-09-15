@@ -5,15 +5,17 @@ export interface GameState {
     scrolls: number;
     activeCharacter: string;
     language: 'pt' | 'es';
+    currentChapter: number;
 }
 
 const defaultState: GameState = {
-    unlockedDisciples: ['peter'],
+    unlockedDisciples: ['andrew'], // Andrew is now the starting character
     unlockedPassages: [],
     unlockedContexts: [],
     scrolls: 0,
-    activeCharacter: 'peter',
-    language: 'pt'
+    activeCharacter: 'andrew',
+    language: 'pt',
+    currentChapter: 1
 };
 
 class StateManager {
