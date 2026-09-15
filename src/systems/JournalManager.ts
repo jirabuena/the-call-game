@@ -10,18 +10,42 @@ export class JournalManager {
     private contextsText: Phaser.GameObjects.Text;
     private scrollsText: Phaser.GameObjects.Text;
 
-    private passageDatabase: Record<string, string> = {
-        'luke_5': 'Lucas 5:1-11 - La pesca milagrosa y el llamado de Simón Pedro.',
-        'matt_4': 'Mateo 4:18-22 - El llamado a ser pescadores de hombres.',
-        'matt_9': 'Mateo 9:9-13 - El llamado de Mateo y la comida con pecadores.',
-        'psalm_122': 'Salmo 122:1 - "Yo me alegré con los que me decían: A la casa de Jehová iremos." Cántico de los peregrinos.'
+    private passageDatabase: Record<string, { pt: string, es: string }> = {
+        'luke_5': {
+            es: 'Lucas 5:1-11 - La pesca milagrosa y el llamado de Simón Pedro.',
+            pt: 'Lucas 5:1-11 - A pesca maravilhosa e o chamado de Simão Pedro.'
+        },
+        'matt_4': {
+            es: 'Mateo 4:18-22 - El llamado a ser pescadores de hombres.',
+            pt: 'Mateus 4:18-22 - O chamado para ser pescadores de homens.'
+        },
+        'matt_9': {
+            es: 'Mateo 9:9-13 - El llamado de Mateo y la comida con pecadores.',
+            pt: 'Mateus 9:9-13 - O chamado de Mateus e a refeição com os pecadores.'
+        },
+        'psalm_122': {
+            es: 'Salmo 122:1 - "Yo me alegré con los que me decían: A la casa de Jehová iremos." Cántico de los peregrinos.',
+            pt: 'Salmos 122:1 - "Alegrei-me quando me disseram: Vamos à casa do Senhor." Cântico dos peregrinos.'
+        }
     };
 
-    private contextDatabase: Record<string, string> = {
-        'galilee_fishing': 'Contexto: Galilea era el centro de la industria pesquera. El pescado salado se exportaba por todo el Imperio Romano.',
-        'roman_occupation': 'Contexto: Roma imponía altos impuestos a los pescadores de Galilea.',
-        'publicans': 'Los publicanos recaudaban impuestos para Roma. Eran odiados y considerados traidores y pecadores por sus compatriotas.',
-        'roman_taxes': 'Contexto: Los romanos y gobernantes locales (tetrarcas) cobraban peajes e impuestos en las entradas de las ciudades, frecuentemente abusivos.'
+    private contextDatabase: Record<string, { pt: string, es: string }> = {
+        'galilee_fishing': {
+            es: 'Contexto: Galilea era el centro de la industria pesquera. El pescado salado se exportaba por todo el Imperio Romano.',
+            pt: 'Contexto: A Galileia era o centro da indústria pesqueira. O peixe salgado era exportado por todo o Império Romano.'
+        },
+        'roman_occupation': {
+            es: 'Contexto: Roma imponía altos impuestos a los pescadores de Galilea.',
+            pt: 'Contexto: Roma impunha altos impostos aos pescadores da Galileia.'
+        },
+        'publicans': {
+            es: 'Los publicanos recaudaban impuestos para Roma. Eran odiados y considerados traidores y pecadores por sus compatriotas.',
+            pt: 'Os publicanos arrecadavam impostos para Roma. Eram odiados e considerados traidores e pecadores por seus compatriotas.'
+        },
+        'roman_taxes': {
+            es: 'Contexto: Los romanos y gobernantes locales (tetrarcas) cobraban peajes e impuestos en las entradas de las ciudades, frecuentemente abusivos.',
+            pt: 'Contexto: Os romanos e governantes locais (tetrarcas) cobravam pedágios e impostos nas entradas das cidades, frequentemente abusivos.'
+        }
     };
 
     constructor(scene: Phaser.Scene) {
@@ -55,7 +79,8 @@ export class JournalManager {
         this.container.add(bg);
 
         // Title
-        const title = this.scene.add.text(width / 2, 10, 'Diario del Camino', {
+        const titleText = state.language === 'pt' ? 'Diário do Caminho' : 'Diario del Camino';
+        const title = this.scene.add.text(width / 2, 10, titleText, {
             fontFamily: 'monospace',
             fontSize: '14px',
             color: '#4A3018',
@@ -64,7 +89,8 @@ export class JournalManager {
         this.container.add(title);
 
         // Scrolls Count
-        this.scrollsText = this.scene.add.text(width - 10, 10, 'Pergaminos: 0', {
+        const scrollsLabel = state.language === 'pt' ? 'Pergaminhos:' : 'Pergaminos:';
+        this.scrollsText = this.scene.add.text(width - 10, 10, `${scrollsLabel} 0`, {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: '#4A3018'
@@ -72,7 +98,8 @@ export class JournalManager {
         this.container.add(this.scrollsText);
 
         // Sections
-        const passagesTitle = this.scene.add.text(10, 30, 'Glosario de Pasajes:', {
+        const passagesLabel = state.language === 'pt' ? 'Glossário de Passagens:' : 'Glosario de Pasajes:';
+        const passagesTitle = this.scene.add.text(10, 30, passagesLabel, {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#4A3018',
@@ -88,7 +115,8 @@ export class JournalManager {
         });
         this.container.add(this.passagesText);
 
-        const contextsTitle = this.scene.add.text(10, 100, 'Contexto Histórico:', {
+        const contextsLabel = state.language === 'pt' ? 'Contexto Histórico:' : 'Contexto Histórico:';
+        const contextsTitle = this.scene.add.text(10, 100, contextsLabel, {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#4A3018',
@@ -119,14 +147,16 @@ export class JournalManager {
     }
 
     private updateContent() {
-        this.scrollsText.setText(`Pergaminos: ${state.scrolls}`);
+        const lang = state.language;
+        const scrollsLabel = lang === 'pt' ? 'Pergaminhos' : 'Pergaminos';
+        this.scrollsText.setText(`${scrollsLabel}: ${state.scrolls}`);
 
-        let pText = state.unlockedPassages.map(id => this.passageDatabase[id] || id).join('\n\n');
-        if (!pText) pText = 'Aún no has descubierto pasajes.';
+        let pText = state.unlockedPassages.map(id => this.passageDatabase[id] ? this.passageDatabase[id][lang] : id).join('\n\n');
+        if (!pText) pText = lang === 'pt' ? 'Ainda não descobriste passagens.' : 'Aún no has descubierto pasajes.';
         this.passagesText.setText(pText);
 
-        let cText = state.unlockedContexts.map(id => this.contextDatabase[id] || id).join('\n\n');
-        if (!cText) cText = 'Aún no hay contexto histórico.';
+        let cText = state.unlockedContexts.map(id => this.contextDatabase[id] ? this.contextDatabase[id][lang] : id).join('\n\n');
+        if (!cText) cText = lang === 'pt' ? 'Ainda não há contexto histórico.' : 'Aún no hay contexto histórico.';
         this.contextsText.setText(cText);
     }
 }

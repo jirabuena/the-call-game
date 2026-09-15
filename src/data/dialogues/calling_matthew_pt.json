@@ -1,0 +1,39 @@
+{
+  "start": {
+    "id": "start",
+    "speakerId": "matthew",
+    "text": "(Mais um dia contando moedas para Roma. Meus próprios irmãos cospem em mim ao passar...)",
+    "avatar": "0x550000",
+    "choices": [
+      {
+        "text": "[Cobrar o próximo imposto]",
+        "nextNodeId": "jesus_arrives"
+      }
+    ]
+  },
+  "jesus_arrives": {
+    "id": "jesus_arrives",
+    "speakerId": "jesus",
+    "text": "Segue-me.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "A mim? Mas eu sou um publicano...",
+        "nextNodeId": "matthew_dilemma"
+      }
+    ]
+  },
+  "matthew_dilemma": {
+    "id": "matthew_dilemma",
+    "speakerId": "jesus",
+    "text": "Os sãos não necessitam de médico, mas, sim, os que estão doentes. Eu não vim chamar os justos, mas, sim, os pecadores.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "[Levantar-se e deixar tudo]",
+        "nextNodeId": "end",
+        "actionTrigger": "join_jesus_matthew"
+      }
+    ]
+  }
+}

@@ -2,8 +2,11 @@ import * as Phaser from 'phaser';
 import { DialogueManager } from '../systems/DialogueManager';
 import type { DialogueTree } from '../systems/DialogueManager';
 import { JournalManager } from '../systems/JournalManager';
-import callingPeterData from '../data/dialogues/calling_peter.json';
-import triviaElderData from '../data/dialogues/trivia_elder.json';
+import { ChapterTitleManager } from '../systems/ChapterTitleManager';
+import callingPeterData_es from '../data/dialogues/calling_peter_es.json';
+import callingPeterData_pt from '../data/dialogues/calling_peter_pt.json';
+import triviaElderData_es from '../data/dialogues/trivia_elder_es.json';
+import triviaElderData_pt from '../data/dialogues/trivia_elder_pt.json';
 import { state } from '../state/GameState';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
 
@@ -22,8 +25,8 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     private journalManager!: JournalManager;
     private _discipleSelectUI!: DiscipleSelectUI;
     
-    private callingPeterTree: DialogueTree = callingPeterData;
-    private triviaElderTree: DialogueTree = triviaElderData;
+    private callingPeterTree!: DialogueTree;
+    private triviaElderTree!: DialogueTree;
     private activeTree: DialogueTree | null = null;
     
     private isDialogueActive: boolean = false;
@@ -87,6 +90,15 @@ export class SeaOfGalileeScene extends Phaser.Scene {
             this.input.keyboard.on('keydown-J', () => this.journalManager.toggle(), this);
         }
 
+        // Chapter Title
+        const title = state.language === 'pt' ? 'Capítulo 1\nO Mar da Galileia' : 'Capítulo 1\nEl Mar de Galilea';
+        const subtitle = state.language === 'pt' ? 'Lucas 5:1-11' : 'Lucas 5:1-11';
+        ChapterTitleManager.showTitle(this, title, subtitle);
+
+        // Load correct dialogue lang
+        this.callingPeterTree = state.language === 'pt' ? callingPeterData_pt : callingPeterData_es;
+        this.triviaElderTree = state.language === 'pt' ? triviaElderData_pt : triviaElderData_es;
+
         // Initialize Managers
         this.dialogueManager = new DialogueManager(this);
         this.journalManager = new JournalManager(this);
@@ -134,25 +146,25 @@ export class SeaOfGalileeScene extends Phaser.Scene {
                 this.dialogueManager.showNode({
                     id: 'net_interaction',
                     speakerId: 'peter',
-                    text: "¡La red está a punto de romperse de tantos peces! ¡Es un milagro!",
+                    text: state.language === 'pt' ? "A rede está a ponto de se romper de tantos peixes! É um milagre!" : "¡La red está a punto de romperse de tantos peces! ¡Es un milagro!",
                     avatar: '0x4a90e2',
-                    choices: [{ text: "[Recoger los peces]", nextNodeId: 'end', actionTrigger: 'catch_fish' }]
+                    choices: [{ text: state.language === 'pt' ? "[Recolher os peixes]" : "[Recoger los peces]", nextNodeId: 'end', actionTrigger: 'catch_fish' }]
                 });
             } else if (this.hasCaughtFish) {
                 this.dialogueManager.showNode({
                     id: 'net_interaction',
                     speakerId: 'peter',
-                    text: "La pesca más grande de mi vida. Pero ya no importa...",
+                    text: state.language === 'pt' ? "A maior pesca da minha vida. Mas isso já não importa..." : "La pesca más grande de mi vida. Pero ya no importa...",
                     avatar: '0x4a90e2',
-                    choices: [{ text: "[Dejarla atrás]", nextNodeId: 'end' }]
+                    choices: [{ text: state.language === 'pt' ? "[Deixá-la para trás]" : "[Dejarla atrás]", nextNodeId: 'end' }]
                 });
             } else {
                 this.dialogueManager.showNode({
                     id: 'net_interaction',
                     speakerId: 'peter',
-                    text: "Vacía de nuevo. Hemos pescado toda la noche y no hemos sacado nada...",
+                    text: state.language === 'pt' ? "Vazia de novo. Pescamos a noite toda e não pegamos nada..." : "Vacía de nuevo. Hemos pescado toda la noche y no hemos sacado nada...",
                     avatar: '0x4a90e2',
-                    choices: [{ text: "[Dejarla]", nextNodeId: 'end' }]
+                    choices: [{ text: state.language === 'pt' ? "[Deixá-la]" : "[Dejarla]", nextNodeId: 'end' }]
                 });
             }
             return;

@@ -1,0 +1,28 @@
+{
+  "start": {
+    "id": "start",
+    "speakerId": "jesus",
+    "text": "Boga mar adentro, y echad vuestras redes para pescar.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "Maestro, toda la noche hemos estado trabajando, y nada hemos pescado; mas en tu palabra echaré la red.",
+        "nextNodeId": "end",
+        "actionTrigger": "told_to_fish"
+      }
+    ]
+  },
+  "after_miracle": {
+    "id": "after_miracle",
+    "speakerId": "jesus",
+    "text": "No temas; desde ahora serás pescador de hombres. Sígueme.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "[Dejar las redes y seguirlo]",
+        "nextNodeId": "end",
+        "actionTrigger": "join_jesus"
+      }
+    ]
+  }
+}

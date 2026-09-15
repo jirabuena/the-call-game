@@ -2,9 +2,11 @@ import * as Phaser from 'phaser';
 import { DialogueManager } from '../systems/DialogueManager';
 import type { DialogueTree } from '../systems/DialogueManager';
 import { JournalManager } from '../systems/JournalManager';
+import { ChapterTitleManager } from '../systems/ChapterTitleManager';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
 import { state, gameStateManager } from '../state/GameState';
-import jerusalemGatesData from '../data/dialogues/jerusalem_gates.json';
+import jerusalemGatesData_es from '../data/dialogues/jerusalem_gates_es.json';
+import jerusalemGatesData_pt from '../data/dialogues/jerusalem_gates_pt.json';
 
 export class JerusalemGatesScene extends Phaser.Scene {
     private player!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
@@ -12,7 +14,7 @@ export class JerusalemGatesScene extends Phaser.Scene {
     private journalManager!: JournalManager;
     private _discipleSelectUI!: DiscipleSelectUI;
     
-    private dialogueTree: DialogueTree = jerusalemGatesData;
+    private dialogueTree!: DialogueTree;
     private isDialogueActive: boolean = false;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasdKeys!: any;
@@ -72,6 +74,14 @@ export class JerusalemGatesScene extends Phaser.Scene {
             this.input.keyboard.on('keydown-E', this.handleInteraction, this);
             this.input.keyboard.on('keydown-J', () => this.journalManager.toggle(), this);
         }
+
+        // Chapter Title
+        const title = state.language === 'pt' ? 'Capítulo 3\nPortas de Jerusalém' : 'Capítulo 3\nPuertas de Jerusalén';
+        const subtitle = state.language === 'pt' ? 'A Caminho da Páscoa' : 'De Camino a la Pascua';
+        ChapterTitleManager.showTitle(this, title, subtitle);
+
+        // Load correct dialogue lang
+        this.dialogueTree = state.language === 'pt' ? jerusalemGatesData_pt : jerusalemGatesData_es;
 
         // Initialize Managers
         this.dialogueManager = new DialogueManager(this);

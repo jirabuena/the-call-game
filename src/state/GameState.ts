@@ -4,6 +4,7 @@ export interface GameState {
     unlockedContexts: string[];
     scrolls: number;
     activeCharacter: string;
+    language: 'pt' | 'es';
 }
 
 const defaultState: GameState = {
@@ -11,7 +12,8 @@ const defaultState: GameState = {
     unlockedPassages: [],
     unlockedContexts: [],
     scrolls: 0,
-    activeCharacter: 'peter'
+    activeCharacter: 'peter',
+    language: 'pt'
 };
 
 class StateManager {

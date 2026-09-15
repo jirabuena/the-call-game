@@ -2,7 +2,9 @@ import * as Phaser from 'phaser';
 import { DialogueManager } from '../systems/DialogueManager';
 import type { DialogueTree } from '../systems/DialogueManager';
 import { JournalManager } from '../systems/JournalManager';
-import callingMatthewData from '../data/dialogues/calling_matthew.json';
+import { ChapterTitleManager } from '../systems/ChapterTitleManager';
+import callingMatthewData_es from '../data/dialogues/calling_matthew_es.json';
+import callingMatthewData_pt from '../data/dialogues/calling_matthew_pt.json';
 import { state, gameStateManager } from '../state/GameState';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
 
@@ -12,7 +14,7 @@ export class CapernaumScene extends Phaser.Scene {
     private journalManager!: JournalManager;
     private _discipleSelectUI!: DiscipleSelectUI;
     
-    private callingMatthewTree: DialogueTree = callingMatthewData;
+    private callingMatthewTree!: DialogueTree;
     private isDialogueActive: boolean = false;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasdKeys!: any;
@@ -71,6 +73,14 @@ export class CapernaumScene extends Phaser.Scene {
             this.input.keyboard.on('keydown-E', this.handleInteraction, this);
             this.input.keyboard.on('keydown-J', () => this.journalManager.toggle(), this);
         }
+
+        // Chapter Title
+        const title = state.language === 'pt' ? 'Capítulo 2\nCafarnaum' : 'Capítulo 2\nCafarnaúm';
+        const subtitle = state.language === 'pt' ? 'Mateus 9:9' : 'Mateo 9:9';
+        ChapterTitleManager.showTitle(this, title, subtitle);
+
+        // Load correct dialogue lang
+        this.callingMatthewTree = state.language === 'pt' ? callingMatthewData_pt : callingMatthewData_es;
 
         // Initialize Managers
         this.dialogueManager = new DialogueManager(this);

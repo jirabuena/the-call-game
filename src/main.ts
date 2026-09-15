@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
+import { MainMenuScene } from './scenes/MainMenuScene';
 import { WorldScene } from './scenes/WorldScene';
 import { SeaOfGalileeScene } from './scenes/SeaOfGalileeScene';
 import { CapernaumScene } from './scenes/CapernaumScene';
@@ -23,7 +24,7 @@ const config: Phaser.Types.Core.GameConfig = {
             debug: false
         }
     },
-    scene: [BootScene, SeaOfGalileeScene, CapernaumScene, JerusalemGatesScene, WorldScene]
+    scene: [BootScene, MainMenuScene, SeaOfGalileeScene, CapernaumScene, JerusalemGatesScene, WorldScene]
 };
 
 new Phaser.Game(config);

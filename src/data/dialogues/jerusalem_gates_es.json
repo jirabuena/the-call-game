@@ -1,0 +1,101 @@
+{
+  "start_guard": {
+    "id": "start_guard",
+    "speakerId": "roman_guard",
+    "text": "¡Alto ahí! ¿Propósito de visita a Jerusalén en época de Pascua? Hay un edicto oficial en esa pared. Léanlo.",
+    "avatar": "0xff0000",
+    "choices": [
+      {
+        "text": "[Tratar de leer el edicto romano]",
+        "nextNodeId": "check_reading"
+      }
+    ]
+  },
+  "check_reading": {
+    "id": "check_reading",
+    "speakerId": "system",
+    "text": "(Solo alguien educado en leyes y registros como un publicano podría entender este pergamino oficial del Imperio)",
+    "avatar": "0x000000",
+    "choices": [
+      {
+        "text": "[Dejarlo estar]",
+        "nextNodeId": "end_guard"
+      }
+    ]
+  },
+  "success_reading": {
+    "id": "success_reading",
+    "speakerId": "matthew",
+    "text": "Es un impuesto de tránsito... pero el sello no es del procurador, es del tetrarca. Están cobrando peajes ilegales.",
+    "avatar": "0x550000",
+    "choices": [
+      {
+        "text": "[Guardia:] ¡Calla publicano! Pasa, pasa...",
+        "nextNodeId": "end_guard",
+        "actionTrigger": "read_edict"
+      }
+    ]
+  },
+  "end_guard": {
+    "id": "end_guard",
+    "speakerId": "roman_guard",
+    "text": "Circulen. No quiero alborotos.",
+    "avatar": "0xff0000",
+    "choices": [
+      {
+        "text": "[Terminar]",
+        "nextNodeId": "end"
+      }
+    ]
+  },
+  
+  "start_pilgrim": {
+    "id": "start_pilgrim",
+    "speakerId": "pilgrim",
+    "text": "Tantos días de viaje desde Galilea... Me duele la espalda. ¿Eres de por allá? Tienes cara de conocer el mar.",
+    "avatar": "0x886644",
+    "choices": [
+      {
+        "text": "[Hablar con el peregrino]",
+        "nextNodeId": "check_humble"
+      }
+    ]
+  },
+  "check_humble": {
+    "id": "check_humble",
+    "speakerId": "system",
+    "text": "(Un pescador humilde sabría qué decirle a un trabajador exhausto)",
+    "avatar": "0x000000",
+    "choices": [
+      {
+        "text": "[Despedirse]",
+        "nextNodeId": "end_pilgrim"
+      }
+    ]
+  },
+  "success_humble": {
+    "id": "success_humble",
+    "speakerId": "peter",
+    "text": "Conozco el peso de las redes y las noches frías en el agua. Ánimo, hermano. El Templo está cerca.",
+    "avatar": "0x4a90e2",
+    "choices": [
+      {
+        "text": "[Peregrino:] Gracias por las palabras de aliento.",
+        "nextNodeId": "end_pilgrim",
+        "actionTrigger": "comfort_pilgrim"
+      }
+    ]
+  },
+  "end_pilgrim": {
+    "id": "end_pilgrim",
+    "speakerId": "pilgrim",
+    "text": "Que la paz sea contigo.",
+    "avatar": "0x886644",
+    "choices": [
+      {
+        "text": "[Terminar]",
+        "nextNodeId": "end"
+      }
+    ]
+  }
+}

@@ -11,7 +11,7 @@ export class BootScene extends Phaser.Scene {
 
     create() {
         this.generateTextures();
-        this.scene.start('SeaOfGalileeScene'); // Start chronological story
+        this.scene.start('MainMenuScene');
     }
 
     private generateTextures() {

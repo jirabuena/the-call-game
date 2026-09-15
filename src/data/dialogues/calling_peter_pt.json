@@ -1,0 +1,28 @@
+{
+  "start": {
+    "id": "start",
+    "speakerId": "jesus",
+    "text": "Faze-te ao mar alto, e lançai as vossas redes para pescar.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "Mestre, havendo trabalhado toda a noite, nada apanhamos; mas, sobre a tua palavra, lançarei a rede.",
+        "nextNodeId": "end",
+        "actionTrigger": "told_to_fish"
+      }
+    ]
+  },
+  "after_miracle": {
+    "id": "after_miracle",
+    "speakerId": "jesus",
+    "text": "Não temas; de agora em diante serás pescador de homens. Segue-me.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "[Deixar as redes e segui-lo]",
+        "nextNodeId": "end",
+        "actionTrigger": "join_jesus"
+      }
+    ]
+  }
+}
