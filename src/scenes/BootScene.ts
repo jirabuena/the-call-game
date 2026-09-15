@@ -82,6 +82,31 @@ export class BootScene extends Phaser.Scene {
         g.generateTexture('tex_net', 32, 32);
         g.clear();
 
+        // 7. Basket Texture (Wicker pattern)
+        g.fillStyle(0xd2b48c); // Light brown base
+        g.fillRect(0, 0, 16, 16);
+        g.fillStyle(0x8B5A2B); // Darker brown weave
+        for (let i = 0; i < 16; i += 4) {
+            g.fillRect(0, i, 16, 2);
+            g.fillRect(i, 0, 2, 16);
+        }
+        g.generateTexture('tex_basket', 16, 16);
+        g.clear();
+
+        // 8. Campfire Texture (Logs and Ash)
+        g.fillStyle(0x000000, 0); // transparent bg
+        g.fillRect(0, 0, 16, 16);
+        g.fillStyle(0x3e2723); // Log 1
+        g.fillRect(2, 6, 12, 4);
+        g.fillStyle(0x4e342e); // Log 2
+        g.fillRect(6, 2, 4, 12);
+        g.fillStyle(0x555555); // Ash
+        g.fillRect(4, 4, 8, 8);
+        g.fillStyle(0x7f0000); // Embers
+        g.fillRect(7, 7, 2, 2);
+        g.generateTexture('tex_campfire', 16, 16);
+        g.clear();
+
         // Helper to draw a character base
         const drawChar = (bodyColor: number, skinColor: number, hairColor: number, hasBeard: boolean, hasBelt: boolean = true) => {
             g.clear();

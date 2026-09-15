@@ -6,16 +6,16 @@
     "avatar": "0xffffff",
     "choices": [
       {
-        "text": "(Fe) Maestro, hemos trabajado toda la noche y nada hemos pescado; mas en tu palabra echaré la red.",
+        "text": "Maestro, hemos trabajado toda la noche y nada hemos pescado; mas en tu palabra echaré la red.",
         "nextNodeId": "end",
         "actionTrigger": "told_to_fish"
       },
       {
-        "text": "(Duda) Esto no tiene sentido, los peces suben de noche, no bajo este sol.",
+        "text": "Esto no tiene sentido, los peces suben de noche, no bajo este sol.",
         "nextNodeId": "doubt_response"
       },
       {
-        "text": "(Rechazo) Estoy demasiado cansado para perder el tiempo. Me voy a casa.",
+        "text": "Estoy demasiado cansado para perder el tiempo. Me voy a casa.",
         "nextNodeId": "end",
         "actionTrigger": "trigger_game_over"
       }
@@ -41,11 +41,11 @@
     "avatar": "0xffffff",
     "choices": [
       {
-        "text": "(Reverencia) ¡Apártate de mí, Señor, porque soy hombre pecador!",
+        "text": "¡Apártate de mí, Señor, porque soy hombre pecador!",
         "nextNodeId": "true_call"
       },
       {
-        "text": "(Materialismo) ¡Con esta cantidad de peces seremos ricos en el mercado!",
+        "text": "¡Con esta cantidad de peces seremos ricos en el mercado!",
         "nextNodeId": "material_response"
       }
     ]
@@ -72,6 +72,18 @@
         "text": "[Dejar las redes y seguirlo]",
         "nextNodeId": "end",
         "actionTrigger": "join_jesus"
+      }
+    ]
+  },
+  "not_ready": {
+    "id": "not_ready",
+    "speakerId": "jesus",
+    "text": "Aún hay lecciones en la playa, Simón. Observa las cestas, las cenizas y habla con tus hermanos antes de partir.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "[Explorar la playa]",
+        "nextNodeId": "end"
       }
     ]
   }

@@ -49,6 +49,14 @@ export class LessonHUD {
         this.showFeedback();
     }
 
+    public getProgress(): number {
+        return this.currentProgress;
+    }
+
+    public getMaxProgress(): number {
+        return this.maxProgress;
+    }
+
     public showFeedback() {
         const msg = state.language === 'pt' ? 'Entendimento adquirido!' : '¡Entendimiento adquirido!';
         this.feedbackText.setText(msg);

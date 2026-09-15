@@ -23,8 +23,8 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     public emptyNet!: Phaser.GameObjects.Sprite;
     public jesusNPC!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
     public elderNPC!: Phaser.GameObjects.Sprite;
-    public basketsPOI!: Phaser.GameObjects.Rectangle; // Keeping rect for baskets/campfire for now, or using tile sprites
-    public campfirePOI!: Phaser.GameObjects.Rectangle;
+    public basketsPOI!: Phaser.GameObjects.Sprite;
+    public campfirePOI!: Phaser.GameObjects.Sprite;
     public fishermenPOI!: Phaser.GameObjects.Sprite;
     
     private waterBoundaryY: number = 86; // 40% of 216
@@ -97,9 +97,9 @@ export class SeaOfGalileeScene extends Phaser.Scene {
 
         // Environmental POIs (scattered on sand)
         // Baskets (middle-right)
-        this.basketsPOI = this.add.rectangle(260, waterHeight + 50, 16, 16, 0x8C6239);
+        this.basketsPOI = this.add.sprite(260, waterHeight + 50, 'tex_basket');
         // Campfire (bottom right corner)
-        this.campfirePOI = this.add.rectangle(width - 50, height - 30, 16, 12, 0x333333); 
+        this.campfirePOI = this.add.sprite(width - 50, height - 30, 'tex_campfire'); 
         // Fishermen background (near the water, far right)
         this.fishermenPOI = this.add.sprite(width - 60, waterHeight + 15, 'tex_peter').setTint(0x888888);
 
@@ -134,7 +134,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         // Initialize Managers
         this.dialogueManager = new DialogueManager(this);
         this.journalManager = new JournalManager(this);
-        this.lessonHUD = new LessonHUD(this, 3); // Max 3 lesson steps for this chapter
+        this.lessonHUD = new LessonHUD(this, 3); // Max 3 lesson steps for this chapter: Elder, Told to fish, Join Jesus
         this.gameOverUI = new GameOverUI(this, this.journalManager);
         this._discipleSelectUI = new DiscipleSelectUI(this);
 
@@ -210,7 +210,10 @@ export class SeaOfGalileeScene extends Phaser.Scene {
             this.isDialogueActive = true;
             this.activeTree = this.callingPeterTree;
             
-            if (this.hasCaughtFish) {
+            if (this.hasCaughtFish && this.lessonHUD.getProgress() < this.lessonHUD.getMaxProgress() - 1) {
+                // If caught fish but hasn't done other things, prompt to explore
+                this.dialogueManager.showNode(this.activeTree['not_ready']);
+            } else if (this.hasCaughtFish) {
                 this.dialogueManager.showNode(this.activeTree['after_miracle']);
             } else {
                 this.dialogueManager.showNode(this.activeTree['start']);
