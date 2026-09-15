@@ -7,7 +7,7 @@ import { state, gameStateManager } from '../state/GameState';
 import jerusalemGatesData from '../data/dialogues/jerusalem_gates.json';
 
 export class JerusalemGatesScene extends Phaser.Scene {
-    private player!: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+    private player!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
     private dialogueManager!: DialogueManager;
     private journalManager!: JournalManager;
     private _discipleSelectUI!: DiscipleSelectUI;
@@ -29,37 +29,39 @@ export class JerusalemGatesScene extends Phaser.Scene {
         const width = 384;
         const height = 216;
 
-        // Dusty path leading to the gates
-        this.add.rectangle(width / 2, height / 2, width, height, 0xD2B48C);
+        // Dusty path leading to the gates (Sand texture)
+        this.add.tileSprite(width / 2, height / 2, width, height, 'tex_sand');
 
-        // Massive stone walls of Jerusalem
-        this.add.rectangle(width / 2, 40, width, 80, 0x8B8989);
+        // Massive stone walls of Jerusalem (Stone texture)
+        this.add.tileSprite(width / 2, 40, width, 80, 'tex_stone_wall');
         this.add.rectangle(width / 2, 80, width, 10, 0x555555); // Wall detail
         
-        // City Gate
-        this.add.rectangle(width / 2, 70, 60, 60, 0x3d2314);
+        // City Gate (Wood texture)
+        this.add.tileSprite(width / 2, 70, 60, 60, 'tex_wood');
 
         // Roman Guard
-        this.guardNPC = this.add.rectangle(width / 2 - 40, 90, 16, 24, 0xff0000);
+        this.guardNPC = this.add.rectangle(width / 2 - 40, 90, 16, 24, 0xff0000).setAlpha(0); // invisible physics body
+        this.add.sprite(width / 2 - 40, 90, 'tex_char').setTint(0xff5555); // Red armor tint
 
         // Pilgrim
-        this.pilgrimNPC = this.add.rectangle(width / 2 + 50, 120, 16, 24, 0x886644);
+        this.pilgrimNPC = this.add.rectangle(width / 2 + 50, 120, 16, 24, 0x886644).setAlpha(0); // invisible physics body
+        this.add.sprite(width / 2 + 50, 120, 'tex_char').setTint(0x886644); // Brown tunic tint
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
         // Player (Starts near the bottom, coming from Galilee/Judea)
-        const rect = this.add.rectangle(width / 2, height - 30, 16, 24, 0xffffff);
-        this.physics.add.existing(rect);
-        this.player = rect as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+        const playerSprite = this.add.sprite(width / 2, height - 30, 'tex_char');
+        this.physics.add.existing(playerSprite);
+        this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
 
         // Character switch listener and initial color
         this.events.on('character-changed', (_charId: string, color: number) => {
-            this.player.setFillStyle(color);
+            this.player.setTint(color);
         });
-        const charColor = state.activeCharacter === 'matthew' ? 0x550000 : 0x4a90e2;
-        this.player.setFillStyle(charColor);
+        const charColor = state.activeCharacter === 'matthew' ? 0xffaaaa : 0xaaaaff;
+        this.player.setTint(charColor);
 
         // Keyboard input
         if (this.input.keyboard) {
@@ -163,6 +165,13 @@ export class JerusalemGatesScene extends Phaser.Scene {
 
         this.player.body.setVelocity(velocityX, velocityY);
         
+        // Simple walk animation (bobbing)
+        if (velocityX !== 0 || velocityY !== 0) {
+            this.player.setAngle(Math.sin(this.time.now / 100) * 10);
+        } else {
+            this.player.setAngle(0);
+        }
+
         // Edge transitions (left side goes to Capernaum, just for example connectivity)
         if (this.player.x <= 10) {
             this.scene.start('CapernaumScene');

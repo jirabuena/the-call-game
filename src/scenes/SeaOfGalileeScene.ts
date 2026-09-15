@@ -8,7 +8,7 @@ import { state } from '../state/GameState';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
 
 export class SeaOfGalileeScene extends Phaser.Scene {
-    private player!: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+    private player!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasdKeys!: any;
     private playerSpeed: number = 100;
@@ -37,42 +37,43 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         const height = 216;
 
         // Sand shore (left half)
-        this.add.rectangle(width / 4, height / 2, width / 2, height, 0xEEDDAA);
+        this.add.tileSprite(width / 4, height / 2, width / 2, height, 'tex_sand');
 
         // Water (right half)
-        this.waterGraphics = this.add.graphics();
-        this.waterGraphics.fillStyle(0x4a90e2, 1);
-        this.waterGraphics.fillRect(width / 2, 0, width / 2, height);
+        const water = this.add.tileSprite(width * 3 / 4, height / 2, width / 2, height, 'tex_water');
 
-        // Simple wave animation (oscillating alpha)
+        // Simple wave animation (moving texture)
         this.tweens.add({
-            targets: this.waterGraphics,
-            alpha: 0.8,
-            yoyo: true,
+            targets: water,
+            tilePositionX: 32,
+            tilePositionY: 16,
+            duration: 4000,
             repeat: -1,
-            duration: 2000,
+            yoyo: true,
             ease: 'Sine.easeInOut'
         });
 
         // Wooden boat moored at the shore
-        this.add.rectangle(width / 2, height / 2, 40, 20, 0x8C6239);
+        this.add.tileSprite(width / 2, height / 2, 40, 20, 'tex_wood');
 
         // Empty fishing net
-        this.emptyNet = this.add.rectangle(width / 2 - 30, height / 2 + 20, 20, 20, 0xaaaaaa);
+        this.emptyNet = this.add.rectangle(width / 2 - 30, height / 2 + 20, 20, 20, 0xaaaaaa); // Keep as rect for color change
         
         // Jesus NPC standing on the shore
-        this.jesusNPC = this.add.rectangle(width / 4, height / 4, 16, 24, 0xffffff);
+        this.jesusNPC = this.add.rectangle(width / 4, height / 4, 16, 24, 0xffffff).setAlpha(0);
+        this.add.sprite(width / 4, height / 4, 'tex_char').setTint(0xffffff);
 
         // Elder NPC for trivia
-        this.elderNPC = this.add.rectangle(width / 4, height * 3 / 4, 16, 24, 0x884400);
+        this.elderNPC = this.add.rectangle(width / 4, height * 3 / 4, 16, 24, 0x884400).setAlpha(0);
+        this.add.sprite(width / 4, height * 3 / 4, 'tex_char').setTint(0x884400);
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
         // Player (Simon Peter)
-        const rect = this.add.rectangle(width / 2 - 40, height / 2, 16, 24, 0x4a90e2);
-        this.physics.add.existing(rect);
-        this.player = rect as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+        const playerSprite = this.add.sprite(width / 2 - 40, height / 2, 'tex_char');
+        this.physics.add.existing(playerSprite);
+        this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
 
         // Keyboard input
@@ -91,12 +92,12 @@ export class SeaOfGalileeScene extends Phaser.Scene {
 
         // Character switch listener
         this.events.on('character-changed', (_charId: string, color: number) => {
-            this.player.setFillStyle(color);
+            this.player.setTint(color);
         });
 
         // Set initial color based on active character
-        const charColor = state.activeCharacter === 'matthew' ? 0x550000 : 0x4a90e2;
-        this.player.setFillStyle(charColor);
+        const charColor = state.activeCharacter === 'matthew' ? 0xffaaaa : 0xaaaaff;
+        this.player.setTint(charColor);
 
         this.dialogueManager.setOnChoiceSelect((nextNodeId, actionTrigger) => {
             if (actionTrigger) {
@@ -206,6 +207,13 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         }
 
         this.player.body.setVelocity(velocityX, velocityY);
+
+        // Simple walk animation (bobbing)
+        if (velocityX !== 0 || velocityY !== 0) {
+            this.player.setAngle(Math.sin(this.time.now / 100) * 10);
+        } else {
+            this.player.setAngle(0);
+        }
 
         // Edge transition (Right side goes to Capernaum)
         if (this.player.x >= 379) {

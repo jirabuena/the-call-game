@@ -36,12 +36,22 @@ export class JournalManager {
         this.container.setScrollFactor(0);
         this.container.setDepth(200);
 
+        // Drop shadow
+        const shadow = this.scene.add.graphics();
+        shadow.fillStyle(0x000000, 0.5);
+        shadow.fillRect(2, 2, width, height);
+        this.container.add(shadow);
+
         // Background (Parchment color)
         const bg = this.scene.add.graphics();
         bg.fillStyle(0xF4E4BC, 1);
         bg.fillRect(0, 0, width, height);
+        
+        // Double border for parchment look
         bg.lineStyle(2, 0x8C6239, 1);
         bg.strokeRect(0, 0, width, height);
+        bg.lineStyle(1, 0xA67249, 1);
+        bg.strokeRect(3, 3, width - 6, height - 6);
         this.container.add(bg);
 
         // Title

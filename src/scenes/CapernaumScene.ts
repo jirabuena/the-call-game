@@ -7,7 +7,7 @@ import { state, gameStateManager } from '../state/GameState';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
 
 export class CapernaumScene extends Phaser.Scene {
-    private player!: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+    private player!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
     private dialogueManager!: DialogueManager;
     private journalManager!: JournalManager;
     private _discipleSelectUI!: DiscipleSelectUI;
@@ -29,31 +29,32 @@ export class CapernaumScene extends Phaser.Scene {
         const width = 384;
         const height = 216;
 
-        // Street background
-        this.add.rectangle(width / 2, height / 2, width, height, 0xC2B280);
+        // Street background (Cobblestone)
+        this.add.tileSprite(width / 2, height / 2, width, height, 'tex_cobble');
 
         // Limestone buildings
-        this.add.rectangle(width / 4, height / 4, 120, 80, 0xEAE0C8); // House 1
-        this.add.rectangle(width * 3 / 4, height / 4, 140, 90, 0xD4C5A9); // House 2
+        this.add.rectangle(width / 4, height / 4, 120, 80, 0xEAE0C8).setStrokeStyle(2, 0xcabfa8);
+        this.add.rectangle(width * 3 / 4, height / 4, 140, 90, 0xD4C5A9).setStrokeStyle(2, 0xb6a98f);
 
         // Market stall
-        this.add.rectangle(width * 3 / 4, height / 2 + 10, 60, 30, 0x8C6239);
+        this.add.tileSprite(width * 3 / 4, height / 2 + 10, 60, 30, 'tex_wood');
         this.add.rectangle(width * 3 / 4, height / 2 - 10, 60, 10, 0xAA3333); // Awning
 
         // Tax booth (Customs office)
-        this.add.rectangle(width / 4, height / 2 + 20, 50, 40, 0x555555); // Floor/Mat
+        this.add.rectangle(width / 4, height / 2 + 20, 50, 40, 0x555555); // Mat
         this.taxTable = this.add.rectangle(width / 4, height / 2 + 30, 40, 15, 0x5C4033);
 
         // Jesus NPC
         this.jesusNPC = this.add.rectangle(width / 2, height * 3 / 4, 16, 24, 0xffffff);
+        this.add.sprite(width / 2, height * 3 / 4, 'tex_char').setTint(0xffffff);
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
         // Player (Matthew) starting near the tax table
-        const rect = this.add.rectangle(width / 4, height / 2 + 15, 16, 24, 0x550000);
-        this.physics.add.existing(rect);
-        this.player = rect as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+        const playerSprite = this.add.sprite(width / 4, height / 2 + 15, 'tex_char');
+        this.physics.add.existing(playerSprite);
+        this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
 
         // Keyboard input
@@ -72,12 +73,12 @@ export class CapernaumScene extends Phaser.Scene {
 
         // Character switch listener
         this.events.on('character-changed', (_charId: string, color: number) => {
-            this.player.setFillStyle(color);
+            this.player.setTint(color);
         });
 
         // Set initial color based on active character
-        const charColor = state.activeCharacter === 'matthew' ? 0x550000 : 0x4a90e2;
-        this.player.setFillStyle(charColor);
+        const charColor = state.activeCharacter === 'matthew' ? 0xffaaaa : 0xaaaaff;
+        this.player.setTint(charColor);
 
         this.dialogueManager.setOnChoiceSelect((nextNodeId, actionTrigger) => {
             if (actionTrigger) {
@@ -164,6 +165,13 @@ export class CapernaumScene extends Phaser.Scene {
         }
 
         this.player.body.setVelocity(velocityX, velocityY);
+
+        // Simple walk animation (bobbing)
+        if (velocityX !== 0 || velocityY !== 0) {
+            this.player.setAngle(Math.sin(this.time.now / 100) * 10);
+        } else {
+            this.player.setAngle(0);
+        }
 
         // Edge transitions
         if (this.player.x <= 5) {

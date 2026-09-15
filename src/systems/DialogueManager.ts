@@ -39,23 +39,34 @@ export class DialogueManager {
         this.container.setScrollFactor(0); // Make it stick to camera
         this.container.setDepth(100);
 
+        // Drop shadow
+        const shadow = this.scene.add.graphics();
+        shadow.fillStyle(0x000000, 0.5);
+        shadow.fillRect(2, 2, width, height);
+        this.container.add(shadow);
+
         // Background with retro border
         this.background = this.scene.add.graphics();
-        this.background.fillStyle(0x000000, 0.8);
+        this.background.fillStyle(0x222222, 0.95);
         this.background.fillRect(0, 0, width, height);
-        this.background.lineStyle(2, 0xffffff, 1);
+        this.background.lineStyle(2, 0xd4c5a9, 1); // Gold-ish border
         this.background.strokeRect(0, 0, width, height);
+        
+        // Inner border for extra retro feel
+        this.background.lineStyle(1, 0x555555, 1);
+        this.background.strokeRect(4, 4, width - 8, height - 8);
         this.container.add(this.background);
 
         // Portrait placeholder
         this.portrait = this.scene.add.rectangle(24, 40, 32, 32, 0xaaaaaa);
+        this.portrait.setStrokeStyle(1, 0xffffff); // Add a small border to the portrait
         this.container.add(this.portrait);
 
         // Main text
-        this.dialogueText = this.scene.add.text(48, 8, '', {
+        this.dialogueText = this.scene.add.text(48, 10, '', {
             fontFamily: 'monospace',
             fontSize: '10px',
-            color: '#ffffff',
+            color: '#eae0c8', // Slightly off-white/parchment color
             wordWrap: { width: width - 56, useAdvancedWrap: true }
         });
         this.container.add(this.dialogueText);

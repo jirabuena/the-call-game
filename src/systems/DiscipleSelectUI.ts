@@ -19,8 +19,8 @@ export class DiscipleSelectUI {
         this.container.setDepth(200);
 
         // Highlight for selected character
-        this.highlight = this.scene.add.rectangle(0, 0, 24, 24, 0xffff00);
-        this.highlight.setStrokeStyle(2, 0xffff00);
+        this.highlight = this.scene.add.rectangle(0, 0, 26, 26, 0xffff00);
+        this.highlight.setStrokeStyle(2, 0xffd700); // Gold highlight
         this.highlight.setFillStyle(); // Transparent fill
         this.container.add(this.highlight);
 
@@ -52,21 +52,27 @@ export class DiscipleSelectUI {
         this.portraits = [];
 
         const size = 20;
-        const padding = 5;
+        const padding = 8;
 
         state.unlockedDisciples.forEach((charId, index) => {
-            const x = (size + padding) * index + (size / 2);
-            const y = size / 2;
+            const x = (size + padding) * index + (size / 2) + 4;
+            const y = size / 2 + 4;
             
+            // Background shadow
+            const shadow = this.scene.add.rectangle(x + 1, y + 1, size, size, 0x000000, 0.5);
+            this.container.add(shadow);
+            this.portraits.push(shadow);
+
             const color = this.characterColors[charId] || 0xaaaaaa;
             const portrait = this.scene.add.rectangle(x, y, size, size, color);
-            portrait.setStrokeStyle(1, 0xffffff);
+            portrait.setStrokeStyle(1, 0xdddddd);
             
             this.container.add(portrait);
             this.portraits.push(portrait);
 
             if (charId === state.activeCharacter) {
                 this.highlight.setPosition(x, y);
+                this.highlight.setDepth(201); // Ensure it's drawn over the portraits
             }
         });
     }
