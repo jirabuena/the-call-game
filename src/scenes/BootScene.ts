@@ -197,7 +197,8 @@ export class BootScene extends Phaser.Scene {
         for(let i=2; i<8; i+=2) g.strokeCircle(8, 8, i);
         g.generateTexture("tex_rope", 16, 16);
         g.clear();
-        g.generateTexture('tex_pilgrim', 16, 24);
+        drawChar(0x8B7355, 0xd0a070, 0x553311, true);
+        g.generateTexture("tex_pilgrim", 16, 24);
         g.clear();
     }
 }

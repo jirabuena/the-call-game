@@ -107,7 +107,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, width, height);
 
         // Player (Simon Peter initially) - spawn near boat on sand
-        const playerSprite = this.add.sprite(100, waterHeight + 30, 'tex_peter');
+        const playerSprite = this.add.sprite(100, waterHeight + 30, `tex_${state.activeCharacter}`);
         this.physics.add.existing(playerSprite);
         this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
