@@ -178,7 +178,7 @@ export class JordanRiverScene extends Phaser.Scene {
             choices: [{ text: lang === 'pt' ? 'Continuar para a Galileia' : 'Continuar a Galilea', nextNodeId: null, callback: () => {
                 this.chapterState = 3;
                 this.lessonHUD.advanceProgress();
-                if (!state.unlockedDisciples.includes('peter')) {
+                if (true) {
                     state.unlockedDisciples.push("peter");
                     this.scene.start("SeaOfGalileeScene");
                     gameStateManager.save();
@@ -228,6 +228,16 @@ export class JordanRiverScene extends Phaser.Scene {
         }
 
         // Transition
+        if (this.jesus.body && this.jesus.body.velocity.x > 0) {
+            this.jesus.setAngle(Math.sin(this.time.now / 100) * 10);
+            if (this.jesus.x > this.cameras.main.width + 20) {
+                this.jesus.destroy();
+                if (!this.peterNPC.visible) {
+                    this.peterNPC.setVisible(true);
+                    this.peterNPC.x = this.cameras.main.width - 20;
+                }
+            }
+        }
         if (this.player.x > this.cameras.main.width - 5) {
             if (this.lessonHUD.getProgress() === this.lessonHUD.getMaxProgress()) {
                 state.currentChapter = 2;
