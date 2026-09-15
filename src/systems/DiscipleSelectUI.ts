@@ -14,7 +14,10 @@ export class DiscipleSelectUI {
 
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
-        this.container = this.scene.add.container(10, 10);
+        const width = this.scene.cameras.main.width;
+        
+        // Position at top-right, aligned with LessonHUD
+        this.container = this.scene.add.container(width - 10, 10);
         this.container.setScrollFactor(0);
         this.container.setDepth(200);
 
@@ -53,10 +56,14 @@ export class DiscipleSelectUI {
 
         const size = 20;
         const padding = 8;
+        
+        // Calculate total width of portraits to right-align them
+        const totalWidth = state.unlockedDisciples.length * size + (state.unlockedDisciples.length - 1) * padding;
 
         state.unlockedDisciples.forEach((charId, index) => {
-            const x = (size + padding) * index + (size / 2) + 4;
-            const y = size / 2 + 4;
+            // Draw from right to left
+            const x = -totalWidth + (size + padding) * index + (size / 2);
+            const y = size / 2;
             
             // Background shadow
             const shadow = this.scene.add.rectangle(x + 1, y + 1, size, size, 0x000000, 0.5);

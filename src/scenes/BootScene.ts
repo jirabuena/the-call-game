@@ -71,6 +71,17 @@ export class BootScene extends Phaser.Scene {
         g.generateTexture('tex_stone_wall', 32, 32);
         g.clear();
 
+        // 6. Net Texture (Grid pattern)
+        g.fillStyle(0x000000, 0); // transparent bg
+        g.fillRect(0, 0, 32, 32);
+        g.fillStyle(0xb5a687); // hemp color
+        for (let i = 0; i < 32; i += 4) {
+            g.fillRect(i, 0, 1, 32);
+            g.fillRect(0, i, 32, 1);
+        }
+        g.generateTexture('tex_net', 32, 32);
+        g.clear();
+
         // Helper to draw a character base
         const drawChar = (bodyColor: number, skinColor: number, hairColor: number, hasBeard: boolean, hasBelt: boolean = true) => {
             g.clear();

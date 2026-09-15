@@ -20,12 +20,14 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     private wasdKeys!: any;
     private playerSpeed: number = 100;
     
-    public emptyNet!: Phaser.GameObjects.Rectangle;
+    public emptyNet!: Phaser.GameObjects.Sprite;
     public jesusNPC!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
     public elderNPC!: Phaser.GameObjects.Sprite;
-    public basketsPOI!: Phaser.GameObjects.Rectangle;
+    public basketsPOI!: Phaser.GameObjects.Rectangle; // Keeping rect for baskets/campfire for now, or using tile sprites
     public campfirePOI!: Phaser.GameObjects.Rectangle;
     public fishermenPOI!: Phaser.GameObjects.Sprite;
+    
+    private waterBoundaryY: number = 86; // 40% of 216
     
     private dialogueManager!: DialogueManager;
     private journalManager!: JournalManager;
@@ -50,11 +52,9 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         const width = 384;
         const height = 216;
 
-        // Sand shore (left half)
-        this.add.tileSprite(width / 4, height / 2, width / 2, height, 'tex_sand');
-
-        // Water (right half)
-        const water = this.add.tileSprite(width * 3 / 4, height / 2, width / 2, height, 'tex_water');
+        // Water (top 40%)
+        const waterHeight = this.waterBoundaryY;
+        const water = this.add.tileSprite(width / 2, waterHeight / 2, width, waterHeight, 'tex_water');
 
         // Simple wave animation (moving texture)
         this.tweens.add({
@@ -66,31 +66,48 @@ export class SeaOfGalileeScene extends Phaser.Scene {
             yoyo: true,
             ease: 'Sine.easeInOut'
         });
-
-        // Wooden boat moored at the shore
-        this.add.tileSprite(width / 2, height / 2, 40, 20, 'tex_wood');
-
-        // Empty fishing net
-        this.emptyNet = this.add.rectangle(width / 2 - 30, height / 2 + 20, 20, 20, 0xaaaaaa); // Keep as rect for color change
         
-        // Jesus NPC standing on the shore
-        const jesusSprite = this.add.sprite(width / 4, height / 4, 'tex_jesus');
+        // Foam line at the edge
+        const foam = this.add.rectangle(width / 2, waterHeight, width, 4, 0xffffff, 0.5);
+        this.tweens.add({
+            targets: foam,
+            alpha: 0.2,
+            scaleY: 1.5,
+            duration: 1000,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Sand shore (bottom 60%)
+        this.add.tileSprite(width / 2, waterHeight + (height - waterHeight) / 2, width, height - waterHeight, 'tex_sand');
+
+        // Wooden boat moored at the shore (top edge of sand)
+        this.add.tileSprite(100, waterHeight + 5, 40, 20, 'tex_wood');
+
+        // Empty fishing net (inside/near the boat)
+        this.emptyNet = this.add.sprite(110, waterHeight + 5, 'tex_net');
+        
+        // Jesus NPC standing on the shore (scattered on sand)
+        const jesusSprite = this.add.sprite(160, waterHeight + 30, 'tex_jesus');
         this.physics.add.existing(jesusSprite);
         this.jesusNPC = jesusSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
 
-        // Elder NPC for trivia
-        this.elderNPC = this.add.sprite(width / 4, height * 3 / 4, 'tex_pilgrim');
+        // Elder NPC for trivia (bottom left)
+        this.elderNPC = this.add.sprite(40, height - 30, 'tex_pilgrim');
 
-        // Environmental POIs
-        this.basketsPOI = this.add.rectangle(width / 4 + 30, height / 2 + 30, 16, 16, 0x8C6239);
-        this.campfirePOI = this.add.rectangle(width / 4 + 50, height / 2 - 20, 12, 12, 0x333333); // Ashes
-        this.fishermenPOI = this.add.sprite(width / 2 + 20, height / 2 + 40, 'tex_peter').setTint(0x888888); // Other fishermen in background
+        // Environmental POIs (scattered on sand)
+        // Baskets (middle-right)
+        this.basketsPOI = this.add.rectangle(260, waterHeight + 50, 16, 16, 0x8C6239);
+        // Campfire (bottom right corner)
+        this.campfirePOI = this.add.rectangle(width - 50, height - 30, 16, 12, 0x333333); 
+        // Fishermen background (near the water, far right)
+        this.fishermenPOI = this.add.sprite(width - 60, waterHeight + 15, 'tex_peter').setTint(0x888888);
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
-        // Player (Simon Peter initially, but drawn generically until tint is applied, though we can use peter's texture)
-        const playerSprite = this.add.sprite(width / 2 - 40, height / 2, 'tex_peter');
+        // Player (Simon Peter initially) - spawn near boat on sand
+        const playerSprite = this.add.sprite(100, waterHeight + 30, 'tex_peter');
         this.physics.add.existing(playerSprite);
         this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
@@ -238,7 +255,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         } else if (action === 'catch_fish') {
             this.hasCaughtFish = true;
             // Visual feedback for miraculous catch
-            this.emptyNet.setFillStyle(0x3a7ca5); // Change net color to indicate it's full of water/fish
+            this.emptyNet.setTint(0x88ff88); // Tint net green-ish to indicate it's full of fish
             
             // Add some fish sprites bouncing around the net
             for(let i=0; i<3; i++) {
@@ -305,6 +322,12 @@ export class SeaOfGalileeScene extends Phaser.Scene {
             const length = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
             velocityX = (velocityX / length) * this.playerSpeed;
             velocityY = (velocityY / length) * this.playerSpeed;
+        }
+
+        // Prevent walking into water
+        if (this.player.y + (velocityY / 60) < this.waterBoundaryY + 12) {
+            velocityY = Math.max(0, velocityY); // Only allow moving down if at boundary
+            this.player.y = this.waterBoundaryY + 12;
         }
 
         this.player.body.setVelocity(velocityX, velocityY);

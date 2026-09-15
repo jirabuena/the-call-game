@@ -14,25 +14,26 @@ export class LessonHUD {
         this.scene = scene;
         this.maxProgress = maxSteps;
 
-        this.container = this.scene.add.container(10, 40);
+        const width = this.scene.cameras.main.width;
+        this.container = this.scene.add.container(width - 10, 40);
         this.container.setScrollFactor(0);
         this.container.setDepth(200);
 
         this.progressText = this.scene.add.text(0, 0, this.getProgressString(), {
             fontFamily: 'monospace',
-            fontSize: '12px',
+            fontSize: '10px',
             color: '#ffffff',
             backgroundColor: '#000000aa',
             padding: { x: 4, y: 2 }
-        });
+        }).setOrigin(1, 0);
         this.container.add(this.progressText);
 
         this.feedbackText = this.scene.add.text(0, 20, '', {
             fontFamily: 'monospace',
-            fontSize: '14px',
+            fontSize: '12px',
             color: '#00ff00',
             fontStyle: 'bold'
-        });
+        }).setOrigin(1, 0);
         this.feedbackText.setAlpha(0);
         this.container.add(this.feedbackText);
     }
