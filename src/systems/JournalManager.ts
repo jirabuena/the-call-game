@@ -4,6 +4,7 @@ import { state } from '../state/GameState';
 export class JournalManager {
     private scene: Phaser.Scene;
     private container: Phaser.GameObjects.Container;
+    private contentContainer: Phaser.GameObjects.Container;
     private isVisible: boolean = false;
     
     private passagesText: Phaser.GameObjects.Text;
@@ -48,6 +49,10 @@ export class JournalManager {
         }
     };
 
+    private scrollY: number = 0;
+    private maxScroll: number = 0;
+    private maskGraphics: Phaser.GameObjects.Graphics;
+
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
 
@@ -58,7 +63,7 @@ export class JournalManager {
 
         this.container = this.scene.add.container(x, y);
         this.container.setScrollFactor(0);
-        this.container.setDepth(200);
+        this.container.setDepth(1000); // Set depth high to cover other UI
 
         // Drop shadow
         const shadow = this.scene.add.graphics();
@@ -76,6 +81,14 @@ export class JournalManager {
         bg.strokeRect(0, 0, width, height);
         bg.lineStyle(1, 0xA67249, 1);
         bg.strokeRect(3, 3, width - 6, height - 6);
+        
+        // Add interactivity to the background for scrolling
+        const hitArea = new Phaser.Geom.Rectangle(0, 0, width, height);
+        bg.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+        bg.on('wheel', (pointer: Phaser.Input.Pointer, deltaX: number, deltaY: number) => {
+            this.handleScroll(deltaY);
+        });
+
         this.container.add(bg);
 
         // Title
@@ -97,48 +110,85 @@ export class JournalManager {
         }).setOrigin(1, 0);
         this.container.add(this.scrollsText);
 
-        // Sections
+        // Create a mask for the scrolling content
+        const maskX = x + 5;
+        const maskY = y + 30; // Below title
+        const maskWidth = width - 10;
+        const maskHeight = height - 35; // Leave room at top/bottom
+
+        this.maskGraphics = this.scene.add.graphics();
+        this.maskGraphics.fillStyle(0xffffff);
+        this.maskGraphics.fillRect(maskX, maskY, maskWidth, maskHeight);
+        
+        // Create content container that will scroll
+        this.contentContainer = this.scene.add.container(0, 30);
+        this.contentContainer.setMask(new Phaser.Display.Masks.GeometryMask(this.scene, this.maskGraphics));
+        this.container.add(this.contentContainer);
+
+        // Sections inside content container
         const passagesLabel = state.language === 'pt' ? 'Glossário de Passagens:' : 'Glosario de Pasajes:';
-        const passagesTitle = this.scene.add.text(10, 30, passagesLabel, {
+        const passagesTitle = this.scene.add.text(10, 0, passagesLabel, {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#4A3018',
             fontStyle: 'bold'
         });
-        this.container.add(passagesTitle);
+        this.contentContainer.add(passagesTitle);
 
-        this.passagesText = this.scene.add.text(10, 45, '', {
+        this.passagesText = this.scene.add.text(10, 15, '', {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: '#4A3018',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
-        this.container.add(this.passagesText);
+        this.contentContainer.add(this.passagesText);
 
         const contextsLabel = state.language === 'pt' ? 'Contexto Histórico:' : 'Contexto Histórico:';
-        const contextsTitle = this.scene.add.text(10, 100, contextsLabel, {
+        const contextsTitle = this.scene.add.text(10, 50, contextsLabel, { // Initial Y position, will update dynamically
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#4A3018',
             fontStyle: 'bold'
         });
-        this.container.add(contextsTitle);
+        this.contentContainer.add(contextsTitle);
 
-        this.contextsText = this.scene.add.text(10, 115, '', {
+        this.contextsText = this.scene.add.text(10, 65, '', { // Initial Y position, will update dynamically
             fontFamily: 'monospace',
             fontSize: '10px',
             color: '#4A3018',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
-        this.container.add(this.contextsText);
+        this.contentContainer.add(this.contextsText);
 
         this.container.setVisible(false);
+        this.maskGraphics.setVisible(false); // Hide mask initially
+
+        // Also add keyboard support for scrolling when visible
+        if (this.scene.input.keyboard) {
+            this.scene.input.keyboard.on('keydown-UP', () => { if(this.isVisible) this.handleScroll(-20); });
+            this.scene.input.keyboard.on('keydown-DOWN', () => { if(this.isVisible) this.handleScroll(20); });
+        }
+    }
+
+    private handleScroll(deltaY: number) {
+        if (!this.isVisible) return;
+        
+        this.scrollY -= deltaY * 0.5; // Adjust scroll speed
+        
+        // Clamp scroll
+        if (this.scrollY > 0) this.scrollY = 0;
+        if (this.scrollY < -this.maxScroll) this.scrollY = -this.maxScroll;
+        
+        // Apply to container (base position 30)
+        this.contentContainer.setY(30 + this.scrollY);
     }
 
     public toggle() {
         this.isVisible = !this.isVisible;
         
         if (this.isVisible) {
+            this.scrollY = 0; // Reset scroll on open
+            this.contentContainer.setY(30);
             this.updateContent();
             this.container.setVisible(true);
         } else {
@@ -155,8 +205,22 @@ export class JournalManager {
         if (!pText) pText = lang === 'pt' ? 'Ainda não descobriste passagens.' : 'Aún no has descubierto pasajes.';
         this.passagesText.setText(pText);
 
+        // Dynamically position the context title and text based on passage text height
+        const passageHeight = this.passagesText.height;
+        const contextTitleY = 15 + passageHeight + 15;
+        
+        // Update context title position
+        (this.contentContainer.getAt(2) as Phaser.GameObjects.Text).setY(contextTitleY);
+
         let cText = state.unlockedContexts.map(id => this.contextDatabase[id] ? this.contextDatabase[id][lang] : id).join('\n\n');
         if (!cText) cText = lang === 'pt' ? 'Ainda não há contexto histórico.' : 'Aún no hay contexto histórico.';
         this.contextsText.setText(cText);
+        this.contextsText.setY(contextTitleY + 15);
+
+        // Calculate max scroll
+        const contentHeight = contextTitleY + 15 + this.contextsText.height;
+        const visibleHeight = 180 - 35; // Container height - top margin
+        
+        this.maxScroll = Math.max(0, contentHeight - visibleHeight + 20); // +20 for bottom padding
     }
 }

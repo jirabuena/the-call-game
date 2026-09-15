@@ -18,6 +18,7 @@ export class DiscipleSelectUI {
         
         // Position at top-right, aligned with LessonHUD
         this.container = this.scene.add.container(width - 10, 10);
+        this.container.setVisible(false);
         this.container.setScrollFactor(0);
         this.container.setDepth(200);
 

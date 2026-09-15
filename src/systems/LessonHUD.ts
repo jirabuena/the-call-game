@@ -4,7 +4,7 @@ import { state } from '../state/GameState';
 export class LessonHUD {
     private scene: Phaser.Scene;
     private container: Phaser.GameObjects.Container;
-    private progressText: Phaser.GameObjects.Text;
+    private progressBar: Phaser.GameObjects.Graphics;
     private feedbackText: Phaser.GameObjects.Text;
     
     private currentProgress: number = 0;
@@ -15,18 +15,13 @@ export class LessonHUD {
         this.maxProgress = maxSteps;
 
         const width = this.scene.cameras.main.width;
-        this.container = this.scene.add.container(width - 10, 40);
+        // Moved higher up since DiscipleSelectUI is hidden
+        this.container = this.scene.add.container(width - 10, 10);
         this.container.setScrollFactor(0);
         this.container.setDepth(200);
 
-        this.progressText = this.scene.add.text(0, 0, this.getProgressString(), {
-            fontFamily: 'monospace',
-            fontSize: '10px',
-            color: '#ffffff',
-            backgroundColor: '#000000aa',
-            padding: { x: 4, y: 2 }
-        }).setOrigin(1, 0);
-        this.container.add(this.progressText);
+        this.progressBar = this.scene.add.graphics();
+        this.container.add(this.progressBar);
 
         this.feedbackText = this.scene.add.text(0, 20, '', {
             fontFamily: 'monospace',
@@ -36,16 +31,37 @@ export class LessonHUD {
         }).setOrigin(1, 0);
         this.feedbackText.setAlpha(0);
         this.container.add(this.feedbackText);
+
+        this.drawProgressBar();
     }
 
-    private getProgressString() {
-        const label = state.language === 'pt' ? 'Progresso da Lição:' : 'Progreso de la Lección:';
-        return `${label} ${this.currentProgress}/${this.maxProgress}`;
+    private drawProgressBar() {
+        this.progressBar.clear();
+        
+        const barWidth = 100;
+        const barHeight = 12;
+        const padding = 2;
+        
+        // Offset to align to the right side
+        const xOffset = -barWidth;
+
+        // Background (empty track)
+        this.progressBar.fillStyle(0x000000, 0.7);
+        this.progressBar.fillRect(xOffset, 0, barWidth, barHeight);
+        this.progressBar.lineStyle(1, 0xffffff, 0.5);
+        this.progressBar.strokeRect(xOffset, 0, barWidth, barHeight);
+
+        // Foreground (fill)
+        if (this.currentProgress > 0) {
+            const fillWidth = (this.currentProgress / this.maxProgress) * (barWidth - padding * 2);
+            this.progressBar.fillStyle(0x00ff00, 1);
+            this.progressBar.fillRect(xOffset + padding, padding, fillWidth, barHeight - padding * 2);
+        }
     }
 
     public advanceProgress(amount: number = 1) {
         this.currentProgress = Math.min(this.maxProgress, this.currentProgress + amount);
-        this.progressText.setText(this.getProgressString());
+        this.drawProgressBar();
         this.showFeedback();
     }
 
