@@ -14,8 +14,8 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     private playerSpeed: number = 100;
     
     public emptyNet!: Phaser.GameObjects.Rectangle;
-    public jesusNPC!: Phaser.GameObjects.Rectangle;
-    public elderNPC!: Phaser.GameObjects.Rectangle;
+    public jesusNPC!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
+    public elderNPC!: Phaser.GameObjects.Sprite;
     public waterGraphics!: Phaser.GameObjects.Graphics;
     
     private dialogueManager!: DialogueManager;
@@ -60,18 +60,18 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         this.emptyNet = this.add.rectangle(width / 2 - 30, height / 2 + 20, 20, 20, 0xaaaaaa); // Keep as rect for color change
         
         // Jesus NPC standing on the shore
-        this.jesusNPC = this.add.rectangle(width / 4, height / 4, 16, 24, 0xffffff).setAlpha(0);
-        this.add.sprite(width / 4, height / 4, 'tex_char').setTint(0xffffff);
+        const jesusSprite = this.add.sprite(width / 4, height / 4, 'tex_jesus');
+        this.physics.add.existing(jesusSprite);
+        this.jesusNPC = jesusSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
 
         // Elder NPC for trivia
-        this.elderNPC = this.add.rectangle(width / 4, height * 3 / 4, 16, 24, 0x884400).setAlpha(0);
-        this.add.sprite(width / 4, height * 3 / 4, 'tex_char').setTint(0x884400);
+        this.elderNPC = this.add.sprite(width / 4, height * 3 / 4, 'tex_pilgrim');
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
-        // Player (Simon Peter)
-        const playerSprite = this.add.sprite(width / 2 - 40, height / 2, 'tex_char');
+        // Player (Simon Peter initially, but drawn generically until tint is applied, though we can use peter's texture)
+        const playerSprite = this.add.sprite(width / 2 - 40, height / 2, 'tex_peter');
         this.physics.add.existing(playerSprite);
         this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
@@ -91,13 +91,17 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         this._discipleSelectUI = new DiscipleSelectUI(this);
 
         // Character switch listener
-        this.events.on('character-changed', (_charId: string, color: number) => {
-            this.player.setTint(color);
+        this.events.on('character-changed', (charId: string) => {
+            this.player.setTexture(`tex_${charId}`);
         });
 
-        // Set initial color based on active character
-        const charColor = state.activeCharacter === 'matthew' ? 0xffaaaa : 0xaaaaff;
-        this.player.setTint(charColor);
+        // Ensure state starts with peter if this is the very beginning
+        if (state.activeCharacter !== 'peter' && !state.unlockedDisciples.includes('matthew')) {
+            state.activeCharacter = 'peter';
+        }
+
+        // Set initial texture based on active character
+        this.player.setTexture(`tex_${state.activeCharacter}`);
 
         this.dialogueManager.setOnChoiceSelect((nextNodeId, actionTrigger) => {
             if (actionTrigger) {
@@ -160,13 +164,14 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         } else if (action === 'join_jesus') {
             if (!state.unlockedDisciples.includes('peter')) {
                 state.unlockedDisciples.push('peter');
-                console.log('Unlocked disciples:', state.unlockedDisciples);
                 
                 // Unlock passage
                 if (!state.unlockedPassages.includes('luke_5')) {
                     state.unlockedPassages.push('luke_5');
                 }
             }
+            // Trigger Jesus to leave for the next scene
+            this.jesusNPC.body.setVelocityX(50);
         } else if (action === 'trivia_correct') {
             state.scrolls += 1;
             if (!state.unlockedContexts.includes('galilee_fishing')) {
@@ -213,6 +218,11 @@ export class SeaOfGalileeScene extends Phaser.Scene {
             this.player.setAngle(Math.sin(this.time.now / 100) * 10);
         } else {
             this.player.setAngle(0);
+        }
+
+        // Jesus bobbing
+        if (this.jesusNPC.body && this.jesusNPC.body.velocity.x > 0) {
+            this.jesusNPC.setAngle(Math.sin(this.time.now / 100) * 10);
         }
 
         // Edge transition (Right side goes to Capernaum)

@@ -19,7 +19,7 @@ export class CapernaumScene extends Phaser.Scene {
     private playerSpeed: number = 100;
     
     public taxTable!: Phaser.GameObjects.Rectangle;
-    public jesusNPC!: Phaser.GameObjects.Rectangle;
+    public jesusNPC!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
     
     constructor() {
         super('CapernaumScene');
@@ -45,14 +45,20 @@ export class CapernaumScene extends Phaser.Scene {
         this.taxTable = this.add.rectangle(width / 4, height / 2 + 30, 40, 15, 0x5C4033);
 
         // Jesus NPC
-        this.jesusNPC = this.add.rectangle(width / 2, height * 3 / 4, 16, 24, 0xffffff);
-        this.add.sprite(width / 2, height * 3 / 4, 'tex_char').setTint(0xffffff);
+        const jesusSprite = this.add.sprite(width / 2, height * 3 / 4, 'tex_jesus');
+        this.physics.add.existing(jesusSprite);
+        this.jesusNPC = jesusSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
-        // Player (Matthew) starting near the tax table
-        const playerSprite = this.add.sprite(width / 4, height / 2 + 15, 'tex_char');
+        // Force character change for the start of the chapter if Matthew is unlocked
+        if (state.unlockedDisciples.includes('matthew')) {
+            state.activeCharacter = 'matthew';
+        }
+
+        // Player (Matthew initially)
+        const playerSprite = this.add.sprite(width / 4, height / 2 + 15, `tex_${state.activeCharacter || 'peter'}`);
         this.physics.add.existing(playerSprite);
         this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
@@ -72,13 +78,12 @@ export class CapernaumScene extends Phaser.Scene {
         this._discipleSelectUI = new DiscipleSelectUI(this);
 
         // Character switch listener
-        this.events.on('character-changed', (_charId: string, color: number) => {
-            this.player.setTint(color);
+        this.events.on('character-changed', (charId: string) => {
+            this.player.setTexture(`tex_${charId}`);
         });
 
-        // Set initial color based on active character
-        const charColor = state.activeCharacter === 'matthew' ? 0xffaaaa : 0xaaaaff;
-        this.player.setTint(charColor);
+        // Set initial texture based on active character
+        this.player.setTexture(`tex_${state.activeCharacter}`);
 
         this.dialogueManager.setOnChoiceSelect((nextNodeId, actionTrigger) => {
             if (actionTrigger) {
@@ -129,11 +134,10 @@ export class CapernaumScene extends Phaser.Scene {
                     state.unlockedContexts.push('publicans');
                 }
                 
-                // Visual feedback: change player color to indicate leaving the old life
-                // this.player.setFillStyle(0x4a90e2); // Will be handled by avatar swap logic
-                
                 gameStateManager.save();
             }
+            // Trigger Jesus to leave for the next scene
+            this.jesusNPC.body.setVelocityX(50);
         }
     }
     
@@ -171,6 +175,11 @@ export class CapernaumScene extends Phaser.Scene {
             this.player.setAngle(Math.sin(this.time.now / 100) * 10);
         } else {
             this.player.setAngle(0);
+        }
+
+        // Jesus bobbing
+        if (this.jesusNPC.body && this.jesusNPC.body.velocity.x > 0) {
+            this.jesusNPC.setAngle(Math.sin(this.time.now / 100) * 10);
         }
 
         // Edge transitions

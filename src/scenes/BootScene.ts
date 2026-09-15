@@ -11,7 +11,7 @@ export class BootScene extends Phaser.Scene {
 
     create() {
         this.generateTextures();
-        this.scene.start('CapernaumScene');
+        this.scene.start('SeaOfGalileeScene'); // Start chronological story
     }
 
     private generateTextures() {
@@ -71,17 +71,76 @@ export class BootScene extends Phaser.Scene {
         g.generateTexture('tex_stone_wall', 32, 32);
         g.clear();
 
-        // 6. Base Character Texture (White body, we'll tint it)
-        g.fillStyle(0xffffff); // Body outline/base
-        g.fillRect(0, 0, 16, 24);
-        g.fillStyle(0x000000); // Outline
-        g.strokeRect(0, 0, 16, 24);
-        g.fillStyle(0xffdcb1); // Face area
-        g.fillRect(3, 2, 10, 8);
-        g.fillStyle(0x000000); // Eyes
-        g.fillRect(5, 5, 2, 2);
-        g.fillRect(9, 5, 2, 2);
-        g.generateTexture('tex_char', 16, 24);
+        // Helper to draw a character base
+        const drawChar = (bodyColor: number, skinColor: number, hairColor: number, hasBeard: boolean, hasBelt: boolean = true) => {
+            g.clear();
+            // Body
+            g.fillStyle(bodyColor);
+            g.fillRect(0, 0, 16, 24);
+            g.fillStyle(0x000000);
+            g.strokeRect(0, 0, 16, 24);
+            
+            // Belt
+            if (hasBelt) {
+                g.fillStyle(0x5C4033);
+                g.fillRect(1, 14, 14, 2);
+            }
+
+            // Face area
+            g.fillStyle(skinColor);
+            g.fillRect(3, 3, 10, 8);
+            
+            // Hair
+            g.fillStyle(hairColor);
+            g.fillRect(2, 2, 12, 3); // top hair
+            g.fillRect(2, 5, 2, 4);  // side hair L
+            g.fillRect(12, 5, 2, 4); // side hair R
+            
+            // Eyes
+            g.fillStyle(0x000000);
+            g.fillRect(5, 6, 2, 2);
+            g.fillRect(9, 6, 2, 2);
+
+            // Beard
+            if (hasBeard) {
+                g.fillStyle(hairColor);
+                g.fillRect(3, 9, 10, 3);
+                g.fillRect(5, 12, 6, 2);
+            }
+        };
+
+        // Jesus Texture (White tunic, brown hair/beard, red sash)
+        drawChar(0xffffff, 0xffdcb1, 0x6b4226, true, false);
+        g.fillStyle(0xaa3333); // Red sash
+        g.fillRect(0, 4, 4, 12);
+        g.fillRect(4, 12, 12, 4);
+        g.generateTexture('tex_jesus', 16, 24);
+
+        // Peter Texture (Blue tunic, dark grey hair/beard)
+        drawChar(0x4a90e2, 0xe0c090, 0x444444, true);
+        g.generateTexture('tex_peter', 16, 24);
+
+        // Matthew Texture (Dark Red tunic, black hair/neat beard)
+        drawChar(0x8B0000, 0xffdcb1, 0x111111, true);
+        // Add a small scroll or coin pouch detail
+        g.fillStyle(0xffd700); // Gold pouch
+        g.fillRect(11, 15, 3, 3);
+        g.generateTexture('tex_matthew', 16, 24);
+
+        // Roman Guard Texture (Red tunic, iron armor)
+        drawChar(0xaa2222, 0xffccaa, 0x332211, false, false);
+        g.fillStyle(0x888888); // Iron breastplate
+        g.fillRect(2, 8, 12, 8);
+        g.fillStyle(0xcccc00); // Brass trim
+        g.fillRect(2, 14, 12, 2);
+        g.fillStyle(0x999999); // Helmet
+        g.fillRect(2, 1, 12, 4);
+        g.fillRect(6, 0, 4, 1);
+        g.generateTexture('tex_guard', 16, 24);
+
+        // Pilgrim Texture (Brown tunic, simple hood/hair)
+        drawChar(0x8B7355, 0xd0a070, 0x553311, true);
+        g.generateTexture('tex_pilgrim', 16, 24);
         g.clear();
     }
 }

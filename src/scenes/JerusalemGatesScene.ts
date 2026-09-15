@@ -41,27 +41,28 @@ export class JerusalemGatesScene extends Phaser.Scene {
 
         // Roman Guard
         this.guardNPC = this.add.rectangle(width / 2 - 40, 90, 16, 24, 0xff0000).setAlpha(0); // invisible physics body
-        this.add.sprite(width / 2 - 40, 90, 'tex_char').setTint(0xff5555); // Red armor tint
+        this.add.sprite(width / 2 - 40, 90, 'tex_guard');
 
         // Pilgrim
         this.pilgrimNPC = this.add.rectangle(width / 2 + 50, 120, 16, 24, 0x886644).setAlpha(0); // invisible physics body
-        this.add.sprite(width / 2 + 50, 120, 'tex_char').setTint(0x886644); // Brown tunic tint
+        this.add.sprite(width / 2 + 50, 120, 'tex_pilgrim');
 
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
         // Player (Starts near the bottom, coming from Galilee/Judea)
-        const playerSprite = this.add.sprite(width / 2, height - 30, 'tex_char');
+        const playerSprite = this.add.sprite(width / 2, height - 30, `tex_${state.activeCharacter || 'peter'}`);
         this.physics.add.existing(playerSprite);
         this.player = playerSprite as Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
         this.player.body.setCollideWorldBounds(true);
 
-        // Character switch listener and initial color
-        this.events.on('character-changed', (_charId: string, color: number) => {
-            this.player.setTint(color);
+        // Character switch listener
+        this.events.on('character-changed', (charId: string) => {
+            this.player.setTexture(`tex_${charId}`);
         });
-        const charColor = state.activeCharacter === 'matthew' ? 0xffaaaa : 0xaaaaff;
-        this.player.setTint(charColor);
+
+        // Set initial texture based on active character
+        this.player.setTexture(`tex_${state.activeCharacter}`);
 
         // Keyboard input
         if (this.input.keyboard) {
