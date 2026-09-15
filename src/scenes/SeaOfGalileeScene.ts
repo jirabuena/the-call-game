@@ -9,6 +9,10 @@ import triviaElderData_es from '../data/dialogues/trivia_elder_es.json';
 import triviaElderData_pt from '../data/dialogues/trivia_elder_pt.json';
 import { state } from '../state/GameState';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
+import { LessonHUD } from '../systems/LessonHUD';
+import { GameOverUI } from '../systems/GameOverUI';
+import galileeEnvData_es from '../data/dialogues/galilee_env_es.json';
+import galileeEnvData_pt from '../data/dialogues/galilee_env_pt.json';
 
 export class SeaOfGalileeScene extends Phaser.Scene {
     private player!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
@@ -19,14 +23,19 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     public emptyNet!: Phaser.GameObjects.Rectangle;
     public jesusNPC!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
     public elderNPC!: Phaser.GameObjects.Sprite;
-    public waterGraphics!: Phaser.GameObjects.Graphics;
+    public basketsPOI!: Phaser.GameObjects.Rectangle;
+    public campfirePOI!: Phaser.GameObjects.Rectangle;
+    public fishermenPOI!: Phaser.GameObjects.Sprite;
     
     private dialogueManager!: DialogueManager;
     private journalManager!: JournalManager;
+    private lessonHUD!: LessonHUD;
+    private gameOverUI!: GameOverUI;
     private _discipleSelectUI!: DiscipleSelectUI;
     
     private callingPeterTree!: DialogueTree;
     private triviaElderTree!: DialogueTree;
+    private envTree!: DialogueTree;
     private activeTree: DialogueTree | null = null;
     
     private isDialogueActive: boolean = false;
@@ -72,6 +81,11 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         // Elder NPC for trivia
         this.elderNPC = this.add.sprite(width / 4, height * 3 / 4, 'tex_pilgrim');
 
+        // Environmental POIs
+        this.basketsPOI = this.add.rectangle(width / 4 + 30, height / 2 + 30, 16, 16, 0x8C6239);
+        this.campfirePOI = this.add.rectangle(width / 4 + 50, height / 2 - 20, 12, 12, 0x333333); // Ashes
+        this.fishermenPOI = this.add.sprite(width / 2 + 20, height / 2 + 40, 'tex_peter').setTint(0x888888); // Other fishermen in background
+
         // Physics Bounds
         this.physics.world.setBounds(0, 0, width, height);
 
@@ -98,10 +112,13 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         // Load correct dialogue lang
         this.callingPeterTree = state.language === 'pt' ? callingPeterData_pt : callingPeterData_es;
         this.triviaElderTree = state.language === 'pt' ? triviaElderData_pt : triviaElderData_es;
+        this.envTree = state.language === 'pt' ? galileeEnvData_pt : galileeEnvData_es;
 
         // Initialize Managers
         this.dialogueManager = new DialogueManager(this);
         this.journalManager = new JournalManager(this);
+        this.lessonHUD = new LessonHUD(this, 3); // Max 3 lesson steps for this chapter
+        this.gameOverUI = new GameOverUI(this, this.journalManager);
         this._discipleSelectUI = new DiscipleSelectUI(this);
 
         // Character switch listener
@@ -192,11 +209,32 @@ export class SeaOfGalileeScene extends Phaser.Scene {
             this.dialogueManager.showNode(this.activeTree['trivia_start']);
             return;
         }
+
+        // Check POIs
+        if (Phaser.Math.Distance.Between(pX, pY, this.basketsPOI.x, this.basketsPOI.y) < 30) {
+            this.isDialogueActive = true;
+            this.activeTree = this.envTree;
+            this.dialogueManager.showNode(this.activeTree['baskets_start']);
+            return;
+        }
+        if (Phaser.Math.Distance.Between(pX, pY, this.campfirePOI.x, this.campfirePOI.y) < 30) {
+            this.isDialogueActive = true;
+            this.activeTree = this.envTree;
+            this.dialogueManager.showNode(this.activeTree['campfire_start']);
+            return;
+        }
+        if (Phaser.Math.Distance.Between(pX, pY, this.fishermenPOI.x, this.fishermenPOI.y) < 40) {
+            this.isDialogueActive = true;
+            this.activeTree = this.envTree;
+            this.dialogueManager.showNode(this.activeTree['fishermen_start']);
+            return;
+        }
     }
 
     private handleNarrativeAction(action: string) {
         if (action === 'told_to_fish') {
             this.hasToldToFish = true;
+            this.lessonHUD.advanceProgress();
         } else if (action === 'catch_fish') {
             this.hasCaughtFish = true;
             // Visual feedback for miraculous catch
@@ -222,6 +260,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
                     state.unlockedPassages.push('luke_5');
                 }
             }
+            this.lessonHUD.advanceProgress();
             // Trigger Jesus to leave for the next scene
             this.jesusNPC.body.setVelocityX(50);
         } else if (action === 'trivia_correct') {
@@ -229,9 +268,14 @@ export class SeaOfGalileeScene extends Phaser.Scene {
             if (!state.unlockedContexts.includes('galilee_fishing')) {
                 state.unlockedContexts.push('galilee_fishing');
             }
-            if (this.journalManager['isVisible']) {
-                this.journalManager.toggle();
-                this.journalManager.toggle(); // refresh hack
+            this.lessonHUD.advanceProgress();
+        } else if (action === 'trigger_game_over') {
+            this.dialogueManager.hide();
+            this.gameOverUI.show();
+        } else if (action === 'inspect_baskets') {
+            if (!state.unlockedContexts.includes('roman_occupation')) {
+                state.unlockedContexts.push('roman_occupation');
+                this.lessonHUD.showFeedback();
             }
         }
     }

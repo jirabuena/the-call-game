@@ -1,0 +1,41 @@
+{
+  "baskets_start": {
+    "id": "baskets_start",
+    "speakerId": "peter",
+    "text": "Os cestos estão vazios. Roma não espera, o tributo deve ser pago com ou sem pesca. A pressão sobre nós é imensa.",
+    "avatar": "0x4a90e2",
+    "choices": [
+      {
+        "text": "[Terminar]",
+        "nextNodeId": "end",
+        "actionTrigger": "inspect_baskets"
+      }
+    ]
+  },
+  "campfire_start": {
+    "id": "campfire_start",
+    "speakerId": "peter",
+    "text": "Restos da vigília de ontem. Meus braços doem e meus olhos ardem. Trabalhar a noite toda cansa até os ossos.",
+    "avatar": "0x4a90e2",
+    "choices": [
+      {
+        "text": "[Terminar]",
+        "nextNodeId": "end",
+        "actionTrigger": "inspect_campfire"
+      }
+    ]
+  },
+  "fishermen_start": {
+    "id": "fishermen_start",
+    "speakerId": "pilgrim",
+    "text": "Pescar de dia, Simão? É loucura. Os peixes fogem para o fundo quando o sol bate na água.",
+    "avatar": "0x886644",
+    "choices": [
+      {
+        "text": "[Terminar]",
+        "nextNodeId": "end",
+        "actionTrigger": "inspect_fishermen"
+      }
+    ]
+  }
+}

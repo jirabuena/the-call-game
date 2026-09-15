@@ -6,7 +6,29 @@
     "avatar": "0xffffff",
     "choices": [
       {
-        "text": "Maestro, toda la noche hemos estado trabajando, y nada hemos pescado; mas en tu palabra echaré la red.",
+        "text": "(Fe) Maestro, hemos trabajado toda la noche y nada hemos pescado; mas en tu palabra echaré la red.",
+        "nextNodeId": "end",
+        "actionTrigger": "told_to_fish"
+      },
+      {
+        "text": "(Duda) Esto no tiene sentido, los peces suben de noche, no bajo este sol.",
+        "nextNodeId": "doubt_response"
+      },
+      {
+        "text": "(Rechazo) Estoy demasiado cansado para perder el tiempo. Me voy a casa.",
+        "nextNodeId": "end",
+        "actionTrigger": "trigger_game_over"
+      }
+    ]
+  },
+  "doubt_response": {
+    "id": "doubt_response",
+    "speakerId": "jesus",
+    "text": "La lógica de los hombres ve el agua vacía. La fe confía en el Creador de los mares. ¿Lanzarás la red?",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "Señor, en tu palabra, echaré la red.",
         "nextNodeId": "end",
         "actionTrigger": "told_to_fish"
       }
@@ -14,6 +36,34 @@
   },
   "after_miracle": {
     "id": "after_miracle",
+    "speakerId": "jesus",
+    "text": "Simón, ¿qué ves en estas redes?",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "(Reverencia) ¡Apártate de mí, Señor, porque soy hombre pecador!",
+        "nextNodeId": "true_call"
+      },
+      {
+        "text": "(Materialismo) ¡Con esta cantidad de peces seremos ricos en el mercado!",
+        "nextNodeId": "material_response"
+      }
+    ]
+  },
+  "material_response": {
+    "id": "material_response",
+    "speakerId": "jesus",
+    "text": "Los tesoros de este mundo se corrompen. Te ofrezco un tesoro mayor que no perece. Piénsalo bien.",
+    "avatar": "0xffffff",
+    "choices": [
+      {
+        "text": "Perdona mi ceguera. ¡Apártate de mí, que soy pecador!",
+        "nextNodeId": "true_call"
+      }
+    ]
+  },
+  "true_call": {
+    "id": "true_call",
     "speakerId": "jesus",
     "text": "No temas; desde ahora serás pescador de hombres. Sígueme.",
     "avatar": "0xffffff",
