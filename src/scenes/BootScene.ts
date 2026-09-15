@@ -181,6 +181,22 @@ export class BootScene extends Phaser.Scene {
         g.generateTexture("tex_john_baptist", 16, 24);
         drawChar(0x800080, 0xffdcb1, 0x999999, true);
         g.generateTexture("tex_scribe", 16, 24);
+        drawChar(0x8B0000, 0xd0a070, 0x444444, true);
+        g.generateTexture("tex_james", 16, 24);
+        drawChar(0x006400, 0xd0a070, 0x444444, false);
+        g.generateTexture("tex_john", 16, 24);
+        drawChar(0x555555, 0xe0c090, 0xcccccc, true);
+        g.generateTexture("tex_zebedee", 16, 24);
+        drawChar(0x8b7355, 0xaa7755, 0x333333, true, false);
+        g.generateTexture("tex_worker", 16, 24);
+        g.clear();
+        g.fillStyle(0xDEB887);
+        g.fillCircle(8, 8, 8);
+        g.fillStyle(0x8B5A2B);
+        g.strokeCircle(8, 8, 8);
+        for(let i=2; i<8; i+=2) g.strokeCircle(8, 8, i);
+        g.generateTexture("tex_rope", 16, 16);
+        g.clear();
         g.generateTexture('tex_pilgrim', 16, 24);
         g.clear();
     }

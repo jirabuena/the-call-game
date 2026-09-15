@@ -122,7 +122,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         }
 
         // Chapter Title
-        const title = state.language === 'pt' ? 'Capítulo 1\nO Mar da Galileia' : 'Capítulo 1\nEl Mar de Galilea';
+        const title = state.language === "pt" ? "Capítulo 2\nO Mar da Galileia" : "Capítulo 2\nEl Mar de Galilea";
         const subtitle = state.language === 'pt' ? 'Lucas 5:1-11' : 'Lucas 5:1-11';
         ChapterTitleManager.showTitle(this, title, subtitle);
 
