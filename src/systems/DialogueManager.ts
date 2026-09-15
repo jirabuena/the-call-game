@@ -31,7 +31,7 @@ export class DialogueManager {
 
         // Configuration
         const width = scene.cameras.main.width - 20;
-        const height = 64;
+        const height = 80;
         const x = 10;
         const y = scene.cameras.main.height - height - 10;
 
@@ -48,7 +48,7 @@ export class DialogueManager {
         this.container.add(this.background);
 
         // Portrait placeholder
-        this.portrait = this.scene.add.rectangle(24, 32, 32, 32, 0xaaaaaa);
+        this.portrait = this.scene.add.rectangle(24, 40, 32, 32, 0xaaaaaa);
         this.container.add(this.portrait);
 
         // Main text
@@ -62,7 +62,7 @@ export class DialogueManager {
 
         // Choices placeholders (up to 3)
         for (let i = 0; i < 3; i++) {
-            const choiceText = this.scene.add.text(48, 30 + (i * 10), '', {
+            const choiceText = this.scene.add.text(48, 0, '', {
                 fontFamily: 'monospace',
                 fontSize: '10px',
                 color: '#aaaaaa'
@@ -159,10 +159,17 @@ export class DialogueManager {
         // Show choices if available
         if (this.currentNode.choices && this.currentNode.choices.length > 0) {
             this.selectedChoiceIndex = 0;
+            
+            // Calculate dynamic Y position based on dialogue text height
+            // We add some padding (e.g., 8px) below the main text
+            const textHeight = this.dialogueText.height;
+            const startY = 8 + textHeight + 8;
+
             for (let i = 0; i < Math.min(3, this.currentNode.choices.length); i++) {
                 const choice = this.currentNode.choices[i];
                 const ct = this.choicesText[i];
                 ct.setText(`> ${choice.text}`);
+                ct.setY(startY + (i * 12)); // Position dynamically
                 ct.setVisible(true);
             }
             this.updateChoiceSelection();
