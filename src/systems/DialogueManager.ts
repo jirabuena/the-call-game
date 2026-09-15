@@ -25,15 +25,17 @@ export class DialogueManager {
     private choicesText: Phaser.GameObjects.Text[] = [];
 
     private isVisible: boolean = false;
+    private boxWidth: number;
+    private boxHeight: number;
     
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
 
         // Configuration
-        const width = scene.cameras.main.width - 20;
-        const height = 80;
+        this.boxWidth = scene.cameras.main.width - 20;
+        this.boxHeight = 95; // Increased height to fit more text and choices
         const x = 10;
-        const y = scene.cameras.main.height - height - 10;
+        const y = scene.cameras.main.height - this.boxHeight - 10;
 
         this.container = this.scene.add.container(x, y);
         this.container.setScrollFactor(0); // Make it stick to camera
@@ -42,23 +44,23 @@ export class DialogueManager {
         // Drop shadow
         const shadow = this.scene.add.graphics();
         shadow.fillStyle(0x000000, 0.5);
-        shadow.fillRect(2, 2, width, height);
+        shadow.fillRect(2, 2, this.boxWidth, this.boxHeight);
         this.container.add(shadow);
 
         // Background with retro border
         this.background = this.scene.add.graphics();
         this.background.fillStyle(0x222222, 0.95);
-        this.background.fillRect(0, 0, width, height);
+        this.background.fillRect(0, 0, this.boxWidth, this.boxHeight);
         this.background.lineStyle(2, 0xd4c5a9, 1); // Gold-ish border
-        this.background.strokeRect(0, 0, width, height);
+        this.background.strokeRect(0, 0, this.boxWidth, this.boxHeight);
         
         // Inner border for extra retro feel
         this.background.lineStyle(1, 0x555555, 1);
-        this.background.strokeRect(4, 4, width - 8, height - 8);
+        this.background.strokeRect(4, 4, this.boxWidth - 8, this.boxHeight - 8);
         this.container.add(this.background);
 
         // Portrait placeholder
-        this.portrait = this.scene.add.rectangle(24, 40, 32, 32, 0xaaaaaa);
+        this.portrait = this.scene.add.rectangle(24, 47, 32, 32, 0xaaaaaa);
         this.portrait.setStrokeStyle(1, 0xffffff); // Add a small border to the portrait
         this.container.add(this.portrait);
 
@@ -67,7 +69,8 @@ export class DialogueManager {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: '#eae0c8', // Slightly off-white/parchment color
-            wordWrap: { width: width - 56, useAdvancedWrap: true }
+            lineSpacing: 2,
+            wordWrap: { width: this.boxWidth - 56, useAdvancedWrap: true }
         });
         this.container.add(this.dialogueText);
 
@@ -174,7 +177,12 @@ export class DialogueManager {
             // Calculate dynamic Y position based on dialogue text height
             // We add some padding (e.g., 8px) below the main text
             const textHeight = this.dialogueText.height;
-            const startY = 8 + textHeight + 8;
+            let startY = 10 + textHeight + 6;
+            
+            // Ensure we don't go out of bounds of the box
+            if (startY > this.boxHeight - (this.currentNode.choices.length * 12) - 4) {
+                startY = this.boxHeight - (this.currentNode.choices.length * 12) - 4;
+            }
 
             for (let i = 0; i < Math.min(3, this.currentNode.choices.length); i++) {
                 const choice = this.currentNode.choices[i];
@@ -199,7 +207,12 @@ export class DialogueManager {
                 this.onChoiceSelect(selectedChoice.nextNodeId, selectedChoice.actionTrigger);
             }
         } else {
-            // End dialogue
+            // If there are no choices (like "end" node), space should just hide the dialogue
+            // Or if we need to dispatch a generic "continue" action we could do it here
+            // But since nodes without choices are dead-ends in our JSON, hide is correct
+            
+            // Check if there was an actionTrigger on this terminal node
+            // Wait, action triggers are on choices, not on the node itself in our interface.
             this.hide();
         }
     }

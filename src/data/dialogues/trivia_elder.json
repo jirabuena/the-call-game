@@ -24,12 +24,24 @@
       "id": "trivia_wrong",
       "speakerId": "elder",
       "text": "No, hijo mío. Piénsalo bien...",
-      "avatar": "0x884400"
+      "avatar": "0x884400",
+      "choices": [
+        {
+          "text": "[Terminar]",
+          "nextNodeId": "end"
+        }
+      ]
     },
     "trivia_correct": {
       "id": "trivia_correct",
       "speakerId": "elder",
       "text": "¡Exacto! Tienes buen entendimiento. Toma este pergamino.",
-      "avatar": "0x884400"
+      "avatar": "0x884400",
+      "choices": [
+        {
+          "text": "[Terminar]",
+          "nextNodeId": "end"
+        }
+      ]
     }
   }

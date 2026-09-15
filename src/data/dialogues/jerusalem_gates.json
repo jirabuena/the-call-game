@@ -41,7 +41,12 @@
     "speakerId": "roman_guard",
     "text": "Circulen. No quiero alborotos.",
     "avatar": "0xff0000",
-    "choices": []
+    "choices": [
+      {
+        "text": "[Terminar]",
+        "nextNodeId": "end"
+      }
+    ]
   },
   
   "start_pilgrim": {
@@ -86,6 +91,11 @@
     "speakerId": "pilgrim",
     "text": "Que la paz sea contigo.",
     "avatar": "0x886644",
-    "choices": []
+    "choices": [
+      {
+        "text": "[Terminar]",
+        "nextNodeId": "end"
+      }
+    ]
   }
 }
