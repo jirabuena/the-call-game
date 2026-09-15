@@ -129,7 +129,7 @@ export class JordanRiverScene extends Phaser.Scene {
             text: lang === 'pt' ? 'Jesus: Vinde e vede.' : 'Jesús: Venid y ved.',
             choices: [{ text: lang === 'pt' ? 'Ir até Pedro' : 'Ir hacia Pedro', nextNodeId: null, callback: () => {
                 this.chapterState = 2;
-                this.peterNPC.setVisible(true);
+                this.jesus.setVelocityX(40);
                 this.lessonHUD.advanceProgress();
                 state.unlockedPassages.push('john_1_35');
                 gameStateManager.save();
