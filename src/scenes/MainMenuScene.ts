@@ -20,23 +20,23 @@ export class MainMenuScene extends Phaser.Scene {
         this.add.rectangle(0, 0, width, height, 0x111111).setOrigin(0);
 
         // Title
-        this.titleText = this.add.text(width / 2, height / 4, '', {
+        this.titleText = this.add.text(width / 2, 40, '', {
             fontFamily: 'monospace',
-            fontSize: '24px',
+            fontSize: '20px',
             color: '#d4c5a9',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         // Language Selectors
-        this.langPtText = this.add.text(width / 2 - 40, height / 2 - 20, 'Português', {
+        this.langPtText = this.add.text(width / 2 - 45, 75, 'Português', {
             fontFamily: 'monospace',
-            fontSize: '12px',
+            fontSize: '10px',
             color: state.language === 'pt' ? '#ffff00' : '#888888'
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-        this.langEsText = this.add.text(width / 2 + 40, height / 2 - 20, 'Español', {
+        this.langEsText = this.add.text(width / 2 + 45, 75, 'Español', {
             fontFamily: 'monospace',
-            fontSize: '12px',
+            fontSize: '10px',
             color: state.language === 'es' ? '#ffff00' : '#888888'
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
@@ -44,21 +44,21 @@ export class MainMenuScene extends Phaser.Scene {
         this.langEsText.on('pointerdown', () => this.setLanguage('es'));
 
         // Controls
-        this.controlsText = this.add.text(width / 2, height / 2 + 20, '', {
+        this.controlsText = this.add.text(width / 2, 130, '', {
             fontFamily: 'monospace',
-            fontSize: '10px',
+            fontSize: '8px',
             color: '#aaaaaa',
             align: 'center',
-            lineSpacing: 5
+            lineSpacing: 4
         }).setOrigin(0.5);
 
         // Start Button
-        this.startText = this.add.text(width / 2, height * 3 / 4 + 20, '', {
+        this.startText = this.add.text(width / 2, 185, '', {
             fontFamily: 'monospace',
-            fontSize: '14px',
+            fontSize: '12px',
             color: '#ffffff',
             backgroundColor: '#444444',
-            padding: { x: 10, y: 5 }
+            padding: { x: 8, y: 4 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
         this.startText.on('pointerdown', () => {
@@ -87,8 +87,8 @@ export class MainMenuScene extends Phaser.Scene {
         this.titleText.setText(lang === 'pt' ? 'O Chamado' : 'El Llamado');
         
         const controls = lang === 'pt' 
-            ? "Controles:\n[WASD / Setas] Mover\n[E] Interagir\n[J] Abrir Diário\n[TAB / C] Trocar Apóstolo"
-            : "Controles:\n[WASD / Flechas] Moverse\n[E] Interactuar\n[J] Abrir Diario\n[TAB / C] Cambiar Apóstol";
+            ? "[WASD / Setas] Mover\n[E] Interagir\n[J] Diário  |  [TAB / C] Trocar Apóstolo"
+            : "[WASD / Flechas] Moverse\n[E] Interactuar\n[J] Diario  |  [TAB / C] Cambiar Apóstol";
         this.controlsText.setText(controls);
         
         this.startText.setText(lang === 'pt' ? 'Iniciar Jornada' : 'Iniciar Camino');
