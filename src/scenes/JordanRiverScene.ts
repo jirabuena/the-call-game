@@ -12,6 +12,7 @@ export class JordanRiverScene extends Phaser.Scene {
     private johnBaptist!: Phaser.Physics.Arcade.Sprite;
     private jesus!: Phaser.Physics.Arcade.Sprite;
     private peterNPC!: Phaser.Physics.Arcade.Sprite;
+    private scribeNPC!: Phaser.Physics.Arcade.Sprite;
     private interactKey!: Phaser.Input.Keyboard.Key;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasd!: any;
@@ -58,6 +59,8 @@ export class JordanRiverScene extends Phaser.Scene {
         this.johnBaptist.setImmovable(true);
 
         // Jesus (far away, white)
+        this.scribeNPC = this.physics.add.sprite(80, height * 0.55, "tex_scribe");
+        this.scribeNPC.setImmovable(true);
         this.jesus = this.physics.add.sprite(width * 0.8, height * 0.45, 'tex_jesus');
          
         this.jesus.setImmovable(true);
@@ -100,6 +103,34 @@ export class JordanRiverScene extends Phaser.Scene {
         const lang = state.language;
 
         // John the Baptist Dialogues
+        this.dialogueManager.addNode("scribe_trivia", {
+            text: lang === "pt" ? "Escriba: O profeta Isaías disse: \"Voz do que clama no deserto\". A quem ele se referia?" : "Escriba: El profeta Isaías dijo: \"Voz del que clama en el desierto\". ¿A quién se refería?",
+            choices: [
+                { text: lang === "pt" ? "A João Batista." : "A Juan el Bautista.", nextNodeId: "scribe_correct" },
+                { text: lang === "pt" ? "Aos romanos." : "A los romanos.", nextNodeId: "scribe_wrong" }
+            ]
+        });
+
+        this.dialogueManager.addNode("scribe_correct", {
+            text: lang === "pt" ? "Escriba: Exato. O precursor prepara o caminho." : "Escriba: Exacto. El precursor prepara el camino.",
+            choices: [{ text: "...", nextNodeId: null, callback: () => {
+                if (!state.unlockedContexts.includes("isaiah_prophecy")) {
+                    state.unlockedContexts.push("isaiah_prophecy");
+                    state.scrolls += 1;
+                }
+            }}]
+        });
+
+        this.dialogueManager.addNode("scribe_wrong", {
+            text: lang === "pt" ? "Escriba: Você deveria estudar mais os rolos..." : "Escriba: Deberías estudiar más los rollos...",
+            choices: [{ text: "...", nextNodeId: null }]
+        });
+
+        this.dialogueManager.addNode("john_after", {
+            text: lang === "pt" ? "João Batista: Ele deve crescer, e eu diminuir." : "Juan el Bautista: Es necesario que él crezca, pero que yo mengüe.",
+            choices: [{ text: "...", nextNodeId: null }]
+        });
+
         this.dialogueManager.addNode('john_0', {
             text: lang === 'pt' ? 'João Batista: Eis o Cordeiro de Deus, que tira o pecado do mundo!' : 'Juan el Bautista: ¡He aquí el Cordero de Dios, que quita el pecado del mundo!',
             choices: [
@@ -181,13 +212,16 @@ export class JordanRiverScene extends Phaser.Scene {
             const distJohn = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.johnBaptist.x, this.johnBaptist.y);
             const distJesus = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.jesus.x, this.jesus.y);
             const distPeter = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.peterNPC.x, this.peterNPC.y);
+            const distScribe = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.scribeNPC.x, this.scribeNPC.y);
 
             if (distJohn < 40) {
                 if (this.chapterState === 0) this.dialogueManager.start('john_0');
-                else this.dialogueManager.start('john_0'); // Or a generic "He must increase"
+                  else this.dialogueManager.start("john_after");
             } else if (distJesus < 40) {
                 if (this.chapterState === 0) this.dialogueManager.start('jesus_early');
                 else if (this.chapterState === 1) this.dialogueManager.start('jesus_call');
+            } else if (distScribe < 40) {
+                this.dialogueManager.start("scribe_trivia");
             } else if (distPeter < 40 && this.peterNPC.visible) {
                 if (this.chapterState === 2) this.dialogueManager.start('peter_found');
             }
