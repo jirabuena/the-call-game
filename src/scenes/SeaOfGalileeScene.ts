@@ -1,3 +1,5 @@
+import { VirtualGamepad } from "../systems/VirtualGamepad";
+
 import * as Phaser from 'phaser';
 import { DialogueManager } from '../systems/DialogueManager';
 import type { DialogueTree } from '../systems/DialogueManager';
@@ -9,6 +11,8 @@ import triviaElderData_es from '../data/dialogues/trivia_elder_es.json';
 import triviaElderData_pt from '../data/dialogues/trivia_elder_pt.json';
 import { state } from '../state/GameState';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
+
+
 import { LessonHUD } from '../systems/LessonHUD';
 import { GameOverUI } from '../systems/GameOverUI';
 import galileeEnvData_es from '../data/dialogues/galilee_env_es.json';
@@ -16,6 +20,7 @@ import galileeEnvData_pt from '../data/dialogues/galilee_env_pt.json';
 
 export class SeaOfGalileeScene extends Phaser.Scene {
     private player!: Phaser.GameObjects.Sprite & { body: Phaser.Physics.Arcade.Body };
+    private virtualGamepad!: VirtualGamepad;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasdKeys!: any;
     private playerSpeed: number = 100;
@@ -301,6 +306,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     }
     
     update() {
+        if (this.virtualGamepad) this.virtualGamepad.update();
         if (!this.player || !this.player.body) return;
 
         this.player.body.setVelocity(0);
@@ -309,15 +315,15 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         let velocityX = 0;
         let velocityY = 0;
 
-        if (this.cursors.left.isDown || this.wasdKeys.A.isDown) {
+        if (this.cursors.left.isDown || this.wasdKeys.A.isDown || this.virtualGamepad?.left || this.virtualGamepad?.left || this.virtualGamepad?.left) {
             velocityX = -this.playerSpeed;
-        } else if (this.cursors.right.isDown || this.wasdKeys.D.isDown) {
+        } else if (this.cursors.right.isDown || this.wasdKeys.D.isDown || this.virtualGamepad?.right || this.virtualGamepad?.right || this.virtualGamepad?.right) {
             velocityX = this.playerSpeed;
         }
 
-        if (this.cursors.up.isDown || this.wasdKeys.W.isDown) {
+        if (this.cursors.up.isDown || this.wasdKeys.W.isDown || this.virtualGamepad?.up || this.virtualGamepad?.up || this.virtualGamepad?.up) {
             velocityY = -this.playerSpeed;
-        } else if (this.cursors.down.isDown || this.wasdKeys.S.isDown) {
+        } else if (this.cursors.down.isDown || this.wasdKeys.S.isDown || this.virtualGamepad?.down || this.virtualGamepad?.down || this.virtualGamepad?.down) {
             velocityY = this.playerSpeed;
         }
 

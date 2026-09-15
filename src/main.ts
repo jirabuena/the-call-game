@@ -1,3 +1,4 @@
+import { ChapterSelectScene } from "./scenes/ChapterSelectScene";
 import * as Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
@@ -34,6 +35,11 @@ const config: Phaser.Types.Core.GameConfig = {
         }
     },
     scene: [
+        ChapterSelectScene,
+        
+        
+        
+        
         BootScene, 
         MainMenuScene, 
         JordanRiverScene,     // Cap 1: Andrew

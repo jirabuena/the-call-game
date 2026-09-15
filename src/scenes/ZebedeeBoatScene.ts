@@ -6,6 +6,7 @@ import { LessonHUD } from '../systems/LessonHUD';
 import { GameOverUI } from '../systems/GameOverUI';
 import { ChapterTitleManager } from '../systems/ChapterTitleManager';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
+import { VirtualGamepad } from "../systems/VirtualGamepad";
 
 const zebedeeData_pt: DialogueTree = {
     'zebedee_busy': {
@@ -98,6 +99,7 @@ export class ZebedeeBoatScene extends Phaser.Scene {
     private lessonHUD!: LessonHUD;
     private gameOverUI!: GameOverUI;
     private _discipleUI!: DiscipleSelectUI;
+    private virtualGamepad!: VirtualGamepad;
 
     private speed = 80;
     private isDialogueActive: boolean = false;
@@ -169,6 +171,7 @@ export class ZebedeeBoatScene extends Phaser.Scene {
 
         this.physics.world.setBounds(0, this.waterBoundaryY, width, height - this.waterBoundaryY);
         this.physics.world.setBoundsCollision(true, false, true, true);
+        this.virtualGamepad = new VirtualGamepad(this);
 
         if (this.input.keyboard) {
             this.cursors = this.input.keyboard.createCursorKeys();
@@ -245,10 +248,11 @@ export class ZebedeeBoatScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.virtualGamepad) this.virtualGamepad.update();
         if (!this.player || !this.player.body) return;
         this.player.setVelocity(0);
 
-        if (Phaser.Input.Keyboard.JustDown(this.interactKey) && !this.isDialogueActive) {
+        if (Phaser.Input.Keyboard.JustDown(this.interactKey) || this.virtualGamepad?.actionJustDown || this.virtualGamepad?.actionJustDown && !this.isDialogueActive) {
             const pX = this.player.x; const pY = this.player.y;
 
             if (Phaser.Math.Distance.Between(pX, pY, this.rope1.x, this.rope1.y) < 40) {
@@ -283,10 +287,10 @@ export class ZebedeeBoatScene extends Phaser.Scene {
         if (this.isDialogueActive || (this.journalManager as any).isVisible) return;
 
         let vx = 0; let vy = 0;
-        if (this.cursors.left.isDown || this.wasdKeys.A.isDown) vx = -this.speed;
-        if (this.cursors.right.isDown || this.wasdKeys.D.isDown) vx = this.speed;
-        if (this.cursors.up.isDown || this.wasdKeys.W.isDown) vy = -this.speed;
-        if (this.cursors.down.isDown || this.wasdKeys.S.isDown) vy = this.speed;
+        if (this.cursors.left.isDown || this.wasdKeys.A.isDown || this.virtualGamepad?.left || this.virtualGamepad?.left) vx = -this.speed;
+        if (this.cursors.right.isDown || this.wasdKeys.D.isDown || this.virtualGamepad?.right || this.virtualGamepad?.right) vx = this.speed;
+        if (this.cursors.up.isDown || this.wasdKeys.W.isDown || this.virtualGamepad?.up || this.virtualGamepad?.up) vy = -this.speed;
+        if (this.cursors.down.isDown || this.wasdKeys.S.isDown || this.virtualGamepad?.down || this.virtualGamepad?.down) vy = this.speed;
 
         if (vx !== 0 && vy !== 0) {
             const length = Math.sqrt(vx * vx + vy * vy);
@@ -314,6 +318,8 @@ export class ZebedeeBoatScene extends Phaser.Scene {
             if (this.JamesUnlocked) {
                 state.activeCharacter = 'james';
                 state.currentChapter = 4;
+                if (4 > state.unlockedChapter) state.unlockedChapter = 4;
+                if (4 > state.unlockedChapter) state.unlockedChapter = 4;
                 gameStateManager.save();
                 this.scene.start('JohnCallingScene');
             } else {

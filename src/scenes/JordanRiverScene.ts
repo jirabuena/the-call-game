@@ -6,6 +6,7 @@ import { LessonHUD } from '../systems/LessonHUD';
 import { GameOverUI } from '../systems/GameOverUI';
 import { ChapterTitleManager } from '../systems/ChapterTitleManager';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
+import { VirtualGamepad } from "../systems/VirtualGamepad";
 
 export class JordanRiverScene extends Phaser.Scene {
     private player!: Phaser.Physics.Arcade.Sprite;
@@ -23,6 +24,7 @@ export class JordanRiverScene extends Phaser.Scene {
     private gameOverUI!: GameOverUI;
     
     private discipleUI!: DiscipleSelectUI;
+    private virtualGamepad!: VirtualGamepad;
 
     // State 0: Need to talk to John
     // State 1: Need to talk to Jesus
@@ -97,6 +99,7 @@ export class JordanRiverScene extends Phaser.Scene {
 
         // Edge transition (Right side)
         this.physics.world.setBoundsCollision(true, false, true, true);
+        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     private setupDialogues() {
@@ -180,6 +183,10 @@ export class JordanRiverScene extends Phaser.Scene {
                 this.lessonHUD.advanceProgress();
                 if (true) {
                     state.unlockedDisciples.push("peter");
+                    state.currentChapter = 2;
+                if (2 > state.unlockedChapter) state.unlockedChapter = 2;
+                    if (2 > state.unlockedChapter) state.unlockedChapter = 2;
+                    gameStateManager.save();
                     this.scene.start("SeaOfGalileeScene");
                     gameStateManager.save();
                 }
@@ -188,6 +195,7 @@ export class JordanRiverScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.virtualGamepad) this.virtualGamepad.update();
         if (this.dialogueManager.isActive() || (this.journalManager as any).isVisible) {
             this.player.setVelocity(0);
             return;
@@ -197,10 +205,10 @@ export class JordanRiverScene extends Phaser.Scene {
         let vx = 0;
         let vy = 0;
 
-        if (this.cursors.left.isDown || this.wasd.A.isDown) vx = -this.speed;
-        if (this.cursors.right.isDown || this.wasd.D.isDown) vx = this.speed;
-        if (this.cursors.up.isDown || this.wasd.W.isDown) vy = -this.speed;
-        if (this.cursors.down.isDown || this.wasd.S.isDown) vy = this.speed;
+        if (this.cursors.left.isDown || this.wasd.A.isDown || this.virtualGamepad?.left || this.virtualGamepad?.left) vx = -this.speed;
+        if (this.cursors.right.isDown || this.wasd.D.isDown || this.virtualGamepad?.right || this.virtualGamepad?.right) vx = this.speed;
+        if (this.cursors.up.isDown || this.wasd.W.isDown || this.virtualGamepad?.up || this.virtualGamepad?.up) vy = -this.speed;
+        if (this.cursors.down.isDown || this.wasd.S.isDown || this.virtualGamepad?.down || this.virtualGamepad?.down) vy = this.speed;
 
         this.player.setVelocity(vx, vy);
         if (vx !== 0 || vy !== 0) {
@@ -208,7 +216,7 @@ export class JordanRiverScene extends Phaser.Scene {
         }
 
         // Interaction
-        if (Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+        if (Phaser.Input.Keyboard.JustDown(this.interactKey) || this.virtualGamepad?.actionJustDown || this.virtualGamepad?.actionJustDown) {
             const distJohn = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.johnBaptist.x, this.johnBaptist.y);
             const distJesus = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.jesus.x, this.jesus.y);
             const distPeter = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.peterNPC.x, this.peterNPC.y);
@@ -241,6 +249,8 @@ export class JordanRiverScene extends Phaser.Scene {
         if (this.player.x > this.cameras.main.width - 5) {
             if (this.lessonHUD.getProgress() === this.lessonHUD.getMaxProgress()) {
                 state.currentChapter = 2;
+                if (2 > state.unlockedChapter) state.unlockedChapter = 2;
+                if (2 > state.unlockedChapter) state.unlockedChapter = 2;
                 state.activeCharacter = 'peter'; // Switch to Peter for chapter 2
                 gameStateManager.save();
                 this.scene.start('SeaOfGalileeScene');

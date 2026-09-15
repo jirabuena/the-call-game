@@ -4,7 +4,8 @@ import { state, gameStateManager } from '../state/GameState';
 export class MainMenuScene extends Phaser.Scene {
     private titleText!: Phaser.GameObjects.Text;
     private controlsText!: Phaser.GameObjects.Text;
-    private startText!: Phaser.GameObjects.Text;
+    private continueText!: Phaser.GameObjects.Text;
+    private selectText!: Phaser.GameObjects.Text;
     private langPtText!: Phaser.GameObjects.Text;
     private langEsText!: Phaser.GameObjects.Text;
 
@@ -20,7 +21,7 @@ export class MainMenuScene extends Phaser.Scene {
         this.add.rectangle(0, 0, width, height, 0x111111).setOrigin(0);
 
         // Title
-        this.titleText = this.add.text(width / 2, 40, '', {
+        this.titleText = this.add.text(width / 2, 30, '', {
             fontFamily: 'monospace',
             fontSize: '20px',
             color: '#d4c5a9',
@@ -28,13 +29,13 @@ export class MainMenuScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Language Selectors
-        this.langPtText = this.add.text(width / 2 - 45, 75, 'Português', {
+        this.langPtText = this.add.text(width / 2 - 45, 65, 'Português', {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: state.language === 'pt' ? '#ffff00' : '#888888'
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-        this.langEsText = this.add.text(width / 2 + 45, 75, 'Español', {
+        this.langEsText = this.add.text(width / 2 + 45, 65, 'Español', {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: state.language === 'es' ? '#ffff00' : '#888888'
@@ -44,7 +45,7 @@ export class MainMenuScene extends Phaser.Scene {
         this.langEsText.on('pointerdown', () => this.setLanguage('es'));
 
         // Controls
-        this.controlsText = this.add.text(width / 2, 130, '', {
+        this.controlsText = this.add.text(width / 2, 110, '', {
             fontFamily: 'monospace',
             fontSize: '8px',
             color: '#aaaaaa',
@@ -52,8 +53,8 @@ export class MainMenuScene extends Phaser.Scene {
             lineSpacing: 4
         }).setOrigin(0.5);
 
-        // Start Button
-        this.startText = this.add.text(width / 2, 185, '', {
+        // Buttons
+        this.continueText = this.add.text(width / 2, 160, '', {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#ffffff',
@@ -61,12 +62,35 @@ export class MainMenuScene extends Phaser.Scene {
             padding: { x: 8, y: 4 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-        this.startText.on('pointerdown', () => {
-            this.scene.start('JordanRiverScene');
+        this.continueText.on('pointerdown', () => {
+            const scenes = [
+                'JordanRiverScene', 'SeaOfGalileeScene', 'ZebedeeBoatScene', 'JohnCallingScene',
+                'BethsaidaScene', 'UnderFigTreeScene', 'CapernaumTaxScene', 'ThomasDecisionScene',
+                'JamesAlphaeusScene', 'SimonZealotScene', 'ThaddaeusScene', 'JudasIscariotScene'
+            ];
+            const targetIndex = state.unlockedChapter - 1;
+            const targetScene = scenes[Math.min(targetIndex, scenes.length - 1)];
+            
+            state.currentChapter = state.unlockedChapter;
+            gameStateManager.save();
+            this.scene.start(targetScene);
         });
-        
-        this.startText.on('pointerover', () => this.startText.setBackgroundColor('#666666'));
-        this.startText.on('pointerout', () => this.startText.setBackgroundColor('#444444'));
+        this.continueText.on('pointerover', () => this.continueText.setBackgroundColor('#666666'));
+        this.continueText.on('pointerout', () => this.continueText.setBackgroundColor('#444444'));
+
+        this.selectText = this.add.text(width / 2, 190, '', {
+            fontFamily: 'monospace',
+            fontSize: '10px',
+            color: '#ffffff',
+            backgroundColor: '#333333',
+            padding: { x: 8, y: 4 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        this.selectText.on('pointerdown', () => {
+            this.scene.start('ChapterSelectScene');
+        });
+        this.selectText.on('pointerover', () => this.selectText.setBackgroundColor('#555555'));
+        this.selectText.on('pointerout', () => this.selectText.setBackgroundColor('#333333'));
 
         this.updateTexts();
     }
@@ -83,14 +107,18 @@ export class MainMenuScene extends Phaser.Scene {
 
     private updateTexts() {
         const lang = state.language;
-        
         this.titleText.setText(lang === 'pt' ? 'O Chamado' : 'El Llamado');
         
         const controls = lang === 'pt' 
-            ? "[WASD / Setas] Mover\n[E] Interagir\n[J] Diário  |  [TAB / C] Trocar Apóstolo"
-            : "[WASD / Flechas] Moverse\n[E] Interactuar\n[J] Diario  |  [TAB / C] Cambiar Apóstol";
+            ? "[WASD / Setas] Mover  |  [E] Interagir\n[J] Diário  |  [TAB / C] Trocar Apóstolo\nControles de Toque para Mobile ativados"
+            : "[WASD / Flechas] Moverse  |  [E] Interactuar\n[J] Diario  |  [TAB / C] Cambiar Apóstol\nControles Táctiles para Móvil activados";
         this.controlsText.setText(controls);
         
-        this.startText.setText(lang === 'pt' ? 'Iniciar Jornada' : 'Iniciar Camino');
+        const isNewGame = state.unlockedChapter === 1 && state.unlockedPassages.length === 0;
+        this.continueText.setText(lang === 'pt' 
+            ? (isNewGame ? 'Iniciar Jornada' : 'Continuar Jornada') 
+            : (isNewGame ? 'Iniciar Camino' : 'Continuar Camino'));
+
+        this.selectText.setText(lang === 'pt' ? 'Selecionar Capítulo' : 'Seleccionar Capítulo');
     }
 }

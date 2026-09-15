@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>The Call</title>
     <style>
       body, html {
@@ -12,13 +12,16 @@
         width: 100%;
         height: 100%;
         background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         overflow: hidden;
+        touch-action: none; /* Prevent default touch behaviors like pull-to-refresh, zooming, panning */
       }
       canvas {
-        image-rendering: -moz-crisp-edges;
-        image-rendering: -webkit-crisp-edges;
+        display: block;
+        touch-action: none; /* Crucial for touch gamepad */
         image-rendering: pixelated;
-        image-rendering: crisp-edges;
       }
     </style>
   </head>

@@ -6,21 +6,23 @@ export interface GameState {
     activeCharacter: string;
     language: 'pt' | 'es';
     currentChapter: number;
+    unlockedChapter: number;
 }
 
 const defaultState: GameState = {
-    unlockedDisciples: ['andrew'], // Andrew is now the starting character
+    unlockedDisciples: ['andrew'],
     unlockedPassages: [],
     unlockedContexts: [],
     scrolls: 0,
     activeCharacter: 'andrew',
     language: 'pt',
-    currentChapter: 1
+    currentChapter: 1,
+    unlockedChapter: 1
 };
 
 class StateManager {
     public state: GameState;
-    private storageKey = 'theCallGame_saveData';
+    private storageKey = 'theCallGame_saveData_v2'; // Bumped key to avoid conflicts with old save formats
 
     constructor() {
         this.state = this.load();

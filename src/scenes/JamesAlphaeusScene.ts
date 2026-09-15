@@ -6,6 +6,7 @@ import { LessonHUD } from '../systems/LessonHUD';
 import { GameOverUI } from '../systems/GameOverUI';
 import { ChapterTitleManager } from '../systems/ChapterTitleManager';
 import { DiscipleSelectUI } from '../systems/DiscipleSelectUI';
+import { VirtualGamepad } from "../systems/VirtualGamepad";
 
 export class JamesAlphaeusScene extends Phaser.Scene {
     private player!: Phaser.Physics.Arcade.Sprite;
@@ -16,6 +17,7 @@ export class JamesAlphaeusScene extends Phaser.Scene {
     private lessonHUD!: LessonHUD;
     private gameOverUI!: GameOverUI;
     private discipleUI!: DiscipleSelectUI;
+    private virtualGamepad!: VirtualGamepad;
     private interactKey!: Phaser.Input.Keyboard.Key;
     private speed = 80;
 
@@ -53,19 +55,21 @@ export class JamesAlphaeusScene extends Phaser.Scene {
         ChapterTitleManager.showTitle(this, 'JamesAlphaeusScene', 'Em desenvolvimento');
         
         this.physics.world.setBoundsCollision(true, false, true, true);
+        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     update() {
+        if (this.virtualGamepad) this.virtualGamepad.update();
         if (this.dialogueManager.isActive() || (this.journalManager as any).isVisible) {
             this.player.setVelocity(0);
             return;
         }
 
         let vx = 0; let vy = 0;
-        if (this.cursors.left.isDown || this.wasd.A.isDown) vx = -this.speed;
-        if (this.cursors.right.isDown || this.wasd.D.isDown) vx = this.speed;
-        if (this.cursors.up.isDown || this.wasd.W.isDown) vy = -this.speed;
-        if (this.cursors.down.isDown || this.wasd.S.isDown) vy = this.speed;
+        if (this.cursors.left.isDown || this.wasd.A.isDown || this.virtualGamepad?.left || this.virtualGamepad?.left) vx = -this.speed;
+        if (this.cursors.right.isDown || this.wasd.D.isDown || this.virtualGamepad?.right || this.virtualGamepad?.right) vx = this.speed;
+        if (this.cursors.up.isDown || this.wasd.W.isDown || this.virtualGamepad?.up || this.virtualGamepad?.up) vy = -this.speed;
+        if (this.cursors.down.isDown || this.wasd.S.isDown || this.virtualGamepad?.down || this.virtualGamepad?.down) vy = this.speed;
 
         this.player.setVelocity(vx, vy);
         if (vx !== 0 || vy !== 0) this.player.y += Math.sin(this.time.now / 100) * 0.5;
