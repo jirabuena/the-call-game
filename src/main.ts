@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { WorldScene } from './scenes/WorldScene';
 import { SeaOfGalileeScene } from './scenes/SeaOfGalileeScene';
+import { CapernaumScene } from './scenes/CapernaumScene';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -21,7 +22,7 @@ const config: Phaser.Types.Core.GameConfig = {
             debug: false
         }
     },
-    scene: [BootScene, SeaOfGalileeScene, WorldScene]
+    scene: [BootScene, SeaOfGalileeScene, CapernaumScene, WorldScene]
 };
 
 new Phaser.Game(config);
