@@ -33,7 +33,7 @@ export class DialogueManager {
 
         // Configuration
         this.boxWidth = scene.cameras.main.width - 20;
-        this.boxHeight = 95; // Increased height to fit more text and choices
+        this.boxHeight = 110; // Increased height to fit long multiline choices
         const x = 10;
         const y = scene.cameras.main.height - this.boxHeight - 10;
 
@@ -79,7 +79,9 @@ export class DialogueManager {
             const choiceText = this.scene.add.text(48, 0, '', {
                 fontFamily: 'monospace',
                 fontSize: '10px',
-                color: '#aaaaaa'
+                color: '#aaaaaa',
+                lineSpacing: 2,
+                wordWrap: { width: this.boxWidth - 56, useAdvancedWrap: true }
             });
             choiceText.setVisible(false);
             this.choicesText.push(choiceText);
@@ -175,21 +177,25 @@ export class DialogueManager {
             this.selectedChoiceIndex = 0;
             
             // Calculate dynamic Y position based on dialogue text height
-            // We add some padding (e.g., 8px) below the main text
+            // We add some padding below the main text
             const textHeight = this.dialogueText.height;
-            let startY = 10 + textHeight + 6;
-            
-            // Ensure we don't go out of bounds of the box
-            if (startY > this.boxHeight - (this.currentNode.choices.length * 12) - 4) {
-                startY = this.boxHeight - (this.currentNode.choices.length * 12) - 4;
-            }
+            let currentY = 10 + textHeight + 6;
 
             for (let i = 0; i < Math.min(3, this.currentNode.choices.length); i++) {
                 const choice = this.currentNode.choices[i];
                 const ct = this.choicesText[i];
                 ct.setText(`> ${choice.text}`);
-                ct.setY(startY + (i * 12)); // Position dynamically
+                
+                // If it goes out of bounds, push it up (simple clamp)
+                if (currentY + ct.height > this.boxHeight - 4) {
+                     currentY = this.boxHeight - ct.height - 4;
+                }
+                
+                ct.setY(currentY);
                 ct.setVisible(true);
+                
+                // Add the actual rendered height of this choice text for the next item's position
+                currentY += ct.height + 2; 
             }
             this.updateChoiceSelection();
         }
