@@ -1,28 +1,25 @@
 #!/bin/bash
-for file in /app/src/scenes/*Scene.ts; do
-    # Skip non-gameplay scenes
-    if [[ "$file" == *"BootScene"* ]] || [[ "$file" == *"MainMenuScene"* ]] || [[ "$file" == *"ChapterSelectScene"* ]]; then
-        continue
-    fi
+node -e "
+const fs = require('fs');
+const files = ['src/scenes/SeaOfGalileeScene.ts', 'src/scenes/CapernaumTaxScene.ts', 'src/scenes/JerusalemGatesScene.ts'];
+
+for (const file of files) {
+    let content = fs.readFileSync(file, 'utf8');
     
-    # 1. Import VirtualGamepad
-    if ! grep -q "VirtualGamepad" "$file"; then
-        sed -i '/import { DiscipleSelectUI }/a import { VirtualGamepad } from "../systems/VirtualGamepad";' "$file"
-    fi
-
-    # 2. Add property
-    if ! grep -q "private virtualGamepad" "$file"; then
-        sed -i '/private _discipleUI/a \    private virtualGamepad!: VirtualGamepad;' "$file"
-        sed -i '/private discipleUI/a \    private virtualGamepad!: VirtualGamepad;' "$file"
-    fi
-
-    # 3. Instantiate in create()
-    if ! grep -q "new VirtualGamepad" "$file"; then
-        sed -i '/this.physics.world.setBoundsCollision/a \        this.virtualGamepad = new VirtualGamepad(this);' "$file"
-    fi
-
-    # 4. Handle transition logic generic replacement
-    # We replace: if (this.player.x > this.cameras.main.width - 5) {
-    # with logic that checks currentChapter and increments unlockedChapter
-    # Actually, the unlockedChapter bump is easier done right before this.scene.start('NextScene')
-done
+    // In Phaser scenes, the update() method usually comes after create()
+    // We want to insert 'this.virtualGamepad = new VirtualGamepad(this);' right before the end of the create() method.
+    // The safest way is to find the LAST occurrence of '    }' BEFORE '    update() {'
+    
+    const updateIdx = content.indexOf('    update() {');
+    if (updateIdx !== -1) {
+        const beforeUpdate = content.substring(0, updateIdx);
+        const lastBraceIdx = beforeUpdate.lastIndexOf('    }');
+        if (lastBraceIdx !== -1) {
+            const before = beforeUpdate.substring(0, lastBraceIdx);
+            const after = beforeUpdate.substring(lastBraceIdx); // this includes the '    }'
+            content = before + '        this.virtualGamepad = new VirtualGamepad(this);\n' + after + content.substring(updateIdx);
+            fs.writeFileSync(file, content, 'utf8');
+        }
+    }
+}
+"

@@ -150,6 +150,7 @@ export class JerusalemGatesScene extends Phaser.Scene {
                 console.log('Unlocked passage: psalm_122');
             }
         }
+        this.virtualGamepad = new VirtualGamepad(this);
     }
     
         this.virtualGamepad = new VirtualGamepad(this);

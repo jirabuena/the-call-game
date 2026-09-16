@@ -303,6 +303,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
                 this.lessonHUD.showFeedback();
             }
         }
+        this.virtualGamepad = new VirtualGamepad(this);
     }
     
         this.virtualGamepad = new VirtualGamepad(this);
