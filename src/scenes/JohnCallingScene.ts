@@ -61,6 +61,7 @@ export class JohnCallingScene extends Phaser.Scene {
     update() {
         if (this.virtualGamepad && this.dialogueManager.isActive()) {
             this.dialogueManager.updateGamepadInput(this.virtualGamepad.actionJustDown, this.virtualGamepad.upJustDown, this.virtualGamepad.downJustDown);
+            this.virtualGamepad.actionJustDown = false; // Prevent double-triggering interaction
         }
 
         if (this.dialogueManager.isActive() || (this.journalManager as any).isVisible) {

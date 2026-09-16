@@ -197,6 +197,7 @@ export class JordanRiverScene extends Phaser.Scene {
     update() {
         if (this.virtualGamepad && this.dialogueManager.isActive()) {
             this.dialogueManager.updateGamepadInput(this.virtualGamepad.actionJustDown, this.virtualGamepad.upJustDown, this.virtualGamepad.downJustDown);
+            this.virtualGamepad.actionJustDown = false; // Prevent double-triggering interaction
         }
 
         if (this.dialogueManager.isActive() || (this.journalManager as any).isVisible) {
@@ -219,7 +220,7 @@ export class JordanRiverScene extends Phaser.Scene {
         }
 
         // Interaction
-        if (Phaser.Input.Keyboard.JustDown(this.interactKey) || this.virtualGamepad?.actionJustDown || this.virtualGamepad?.actionJustDown) {
+        if (Phaser.Input.Keyboard.JustDown(this.interactKey) || this.virtualGamepad?.actionJustDown) {
             const distJohn = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.johnBaptist.x, this.johnBaptist.y);
             const distJesus = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.jesus.x, this.jesus.y);
             const distPeter = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.peterNPC.x, this.peterNPC.y);
