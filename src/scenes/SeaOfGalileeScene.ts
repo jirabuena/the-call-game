@@ -305,6 +305,9 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         }
     }
     
+        this.virtualGamepad = new VirtualGamepad(this);
+    }
+
     update() {
         if (!this.player || !this.player.body) return;
 
