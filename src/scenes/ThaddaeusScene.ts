@@ -59,6 +59,10 @@ export class ThaddaeusScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.virtualGamepad && this.dialogueManager.isActive()) {
+            this.dialogueManager.updateGamepadInput(this.virtualGamepad.actionJustDown, this.virtualGamepad.upJustDown, this.virtualGamepad.downJustDown);
+        }
+
         if (this.dialogueManager.isActive() || (this.journalManager as any).isVisible) {
             this.player.setVelocity(0);
             return;

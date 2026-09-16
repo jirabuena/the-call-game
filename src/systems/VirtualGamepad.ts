@@ -10,8 +10,12 @@ export class VirtualGamepad {
     public left: boolean = false;
     public right: boolean = false;
     public actionJustDown: boolean = false;
+    public upJustDown: boolean = false;
+    public downJustDown: boolean = false;
 
     private actionWasDown: boolean = false;
+    private upWasDown: boolean = false;
+    private downWasDown: boolean = false;
 
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
@@ -57,9 +61,30 @@ export class VirtualGamepad {
 
             container.add([btn, gfx]);
 
-            btn.on('pointerdown', () => { this[key] = true; btn.setAlpha(0.8); });
-            btn.on('pointerup', () => { this[key] = false; btn.setAlpha(alpha); });
-            btn.on('pointerout', () => { this[key] = false; btn.setAlpha(alpha); });
+            btn.on('pointerdown', () => {
+                this[key] = true;
+                if (key === 'up' && !this.upWasDown) {
+                    this.upJustDown = true;
+                    this.upWasDown = true;
+                }
+                if (key === 'down' && !this.downWasDown) {
+                    this.downJustDown = true;
+                    this.downWasDown = true;
+                }
+                btn.setAlpha(0.8);
+            });
+            btn.on('pointerup', () => {
+                this[key] = false;
+                if (key === 'up') this.upWasDown = false;
+                if (key === 'down') this.downWasDown = false;
+                btn.setAlpha(alpha);
+            });
+            btn.on('pointerout', () => {
+                this[key] = false;
+                if (key === 'up') this.upWasDown = false;
+                if (key === 'down') this.downWasDown = false;
+                btn.setAlpha(alpha);
+            });
         };
 
         createBtn(baseX, baseY - size - 5, 'up');
@@ -106,5 +131,7 @@ export class VirtualGamepad {
         // Must be called in the scene's update loop to reset one-frame flags like actionJustDown
         // Scene should read actionJustDown *before* calling update() on the gamepad.
         this.actionJustDown = false;
+        this.upJustDown = false;
+        this.downJustDown = false;
     }
 }

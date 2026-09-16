@@ -87,6 +87,20 @@ export class DialogueManager {
         }
     }
 
+    public updateGamepadInput(actionJustDown: boolean, upJustDown: boolean, downJustDown: boolean) {
+        if (!this.isVisible) return;
+        
+        if (actionJustDown) {
+            this.handleAdvance();
+        }
+        if (upJustDown) {
+            this.handleChoiceUp();
+        }
+        if (downJustDown) {
+            this.handleChoiceDown();
+        }
+    }
+
     private currentNode: DialogueNode | null = null;
     private currentTextIndex: number = 0;
     private typewriterTimer: Phaser.Time.TimerEvent | null = null;
