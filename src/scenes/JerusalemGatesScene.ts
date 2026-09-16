@@ -152,9 +152,6 @@ export class JerusalemGatesScene extends Phaser.Scene {
         }
         this.virtualGamepad = new VirtualGamepad(this);
     }
-    
-        this.virtualGamepad = new VirtualGamepad(this);
-    }
 
     update() {
         if (!this.player || !this.player.body) return;
