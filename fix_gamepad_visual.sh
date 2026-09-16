@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'INNER_EOF' > src/systems/VirtualGamepad.ts.patch
 <<<<<<< SEARCH
         const alpha = 0.5;
         const size = 30; // Button size
@@ -90,3 +92,4 @@
 
         container.add([actionBtn, actionBorder, actionText]);
 >>>>>>> REPLACE
+INNER_EOF
