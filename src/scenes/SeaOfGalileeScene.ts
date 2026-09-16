@@ -307,6 +307,20 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.virtualGamepad && (this.dialogueManager as any).isActive && (this.dialogueManager as any).isActive()) {
+            if (this.virtualGamepad.actionJustDown && (this.dialogueManager as any).updateGamepadInput) {
+                (this.dialogueManager as any).updateGamepadInput(true, false, false);
+                this.virtualGamepad.actionJustDown = false;
+            } else if ((this.virtualGamepad as any).upJustDown || (this.virtualGamepad as any).downJustDown) {
+                 (this.dialogueManager as any).updateGamepadInput(false, (this.virtualGamepad as any).upJustDown, (this.virtualGamepad as any).downJustDown);
+            }
+        }
+        
+        // Use gamepad for interaction
+        if (this.virtualGamepad?.actionJustDown) {
+            this.handleInteraction();
+        }
+
         if (!this.player || !this.player.body) return;
 
         this.player.body.setVelocity(0);
