@@ -35,13 +35,9 @@ const config: Phaser.Types.Core.GameConfig = {
         }
     },
     scene: [
-        ChapterSelectScene,
-        
-        
-        
-        
         BootScene, 
         MainMenuScene, 
+        ChapterSelectScene,
         JordanRiverScene,     // Cap 1: Andrew
         SeaOfGalileeScene,    // Cap 2: Peter
         ZebedeeBoatScene,     // Cap 3: James
