@@ -195,7 +195,6 @@ export class JordanRiverScene extends Phaser.Scene {
     }
 
     update() {
-        if (this.virtualGamepad) this.virtualGamepad.update();
         if (this.dialogueManager.isActive() || (this.journalManager as any).isVisible) {
             this.player.setVelocity(0);
             return;
@@ -258,5 +257,6 @@ export class JordanRiverScene extends Phaser.Scene {
                 this.player.x = this.cameras.main.width - 5; // Block
             }
         }
+        if (this.virtualGamepad) this.virtualGamepad.update();
     }
 }

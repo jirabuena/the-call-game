@@ -157,7 +157,6 @@ export class CapernaumTaxScene extends Phaser.Scene {
     }
     
     update() {
-        if (this.virtualGamepad) this.virtualGamepad.update();
         if (!this.player || !this.player.body) return;
 
         this.player.body.setVelocity(0);
@@ -204,5 +203,6 @@ export class CapernaumTaxScene extends Phaser.Scene {
         } else if (this.player.x >= 365) {
             this.scene.start("ThomasDecisionScene");
         }
+        if (this.virtualGamepad) this.virtualGamepad.update();
     }
 }

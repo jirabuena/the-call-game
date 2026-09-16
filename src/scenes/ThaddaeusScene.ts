@@ -59,7 +59,6 @@ export class ThaddaeusScene extends Phaser.Scene {
     }
 
     update() {
-        if (this.virtualGamepad) this.virtualGamepad.update();
         if (this.dialogueManager.isActive() || (this.journalManager as any).isVisible) {
             this.player.setVelocity(0);
             return;
@@ -78,5 +77,6 @@ export class ThaddaeusScene extends Phaser.Scene {
         if (this.player.x > this.cameras.main.width - 5) {
             this.scene.start('JudasIscariotScene');
         }
+        if (this.virtualGamepad) this.virtualGamepad.update();
     }
 }

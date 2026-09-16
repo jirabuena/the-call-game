@@ -306,7 +306,6 @@ export class SeaOfGalileeScene extends Phaser.Scene {
     }
     
     update() {
-        if (this.virtualGamepad) this.virtualGamepad.update();
         if (!this.player || !this.player.body) return;
 
         this.player.body.setVelocity(0);
@@ -357,5 +356,6 @@ export class SeaOfGalileeScene extends Phaser.Scene {
         if (this.player.x >= 365) {
             this.scene.start("ZebedeeBoatScene");
         }
+        if (this.virtualGamepad) this.virtualGamepad.update();
     }
 }

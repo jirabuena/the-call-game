@@ -153,7 +153,6 @@ export class JerusalemGatesScene extends Phaser.Scene {
     }
     
     update() {
-        if (this.virtualGamepad) this.virtualGamepad.update();
         if (!this.player || !this.player.body) return;
 
         this.player.body.setVelocity(0);
@@ -193,5 +192,6 @@ export class JerusalemGatesScene extends Phaser.Scene {
         if (this.player.x <= 15) {
             this.scene.start('CapernaumScene');
         }
+        if (this.virtualGamepad) this.virtualGamepad.update();
     }
 }

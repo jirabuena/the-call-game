@@ -248,7 +248,6 @@ export class ZebedeeBoatScene extends Phaser.Scene {
     }
 
     update() {
-        if (this.virtualGamepad) this.virtualGamepad.update();
         if (!this.player || !this.player.body) return;
         this.player.setVelocity(0);
 
@@ -326,5 +325,6 @@ export class ZebedeeBoatScene extends Phaser.Scene {
                 this.player.x = this.cameras.main.width - 5;
             }
         }
+        if (this.virtualGamepad) this.virtualGamepad.update();
     }
 }
