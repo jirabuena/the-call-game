@@ -168,6 +168,7 @@ export class SeaOfGalileeScene extends Phaser.Scene {
                 this.activeTree = null;
             }
         });
+        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     private handleInteraction() {
@@ -303,7 +304,6 @@ export class SeaOfGalileeScene extends Phaser.Scene {
                 this.lessonHUD.showFeedback();
             }
         }
-        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     update() {

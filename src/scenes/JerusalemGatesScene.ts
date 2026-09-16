@@ -113,6 +113,7 @@ export class JerusalemGatesScene extends Phaser.Scene {
                 this.isDialogueActive = false;
             }
         });
+        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     private handleInteraction() {
@@ -150,7 +151,6 @@ export class JerusalemGatesScene extends Phaser.Scene {
                 console.log('Unlocked passage: psalm_122');
             }
         }
-        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     update() {

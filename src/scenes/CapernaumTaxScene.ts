@@ -111,6 +111,7 @@ export class CapernaumTaxScene extends Phaser.Scene {
                 this.isDialogueActive = false;
             }
         });
+        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     private handleInteraction() {
@@ -154,7 +155,6 @@ export class CapernaumTaxScene extends Phaser.Scene {
             // Trigger Jesus to leave for the next scene
             this.jesusNPC.body.setVelocityX(50);
         }
-        this.virtualGamepad = new VirtualGamepad(this);
     }
 
     update() {
